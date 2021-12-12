@@ -1,0 +1,28 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+
+        <IsPackable>false</IsPackable>
+
+        <AssemblyName>QualityGate.RealTime.Tests</AssemblyName>
+
+        <RootNamespace>QualityGate.RealTime.Tests</RootNamespace>
+
+        <Company>QualityGate</Company>
+
+        <Product>QualityGate.RealTime.Tests</Product>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.5.0" />
+        <PackageReference Include="MSTest.TestAdapter" Version="2.2.8" />
+        <PackageReference Include="MSTest.TestFramework" Version="2.2.8" />
+        <PackageReference Include="NSubstitute" Version="4.2.2" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\RealTime\RealTime.csproj" />
+    </ItemGroup>
+
+</Project>

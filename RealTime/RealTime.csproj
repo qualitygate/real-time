@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <AssemblyName>QualityGate.RealTime</AssemblyName>
+        <RootNamespace>QualityGate.RealTime</RootNamespace>
+        <Nullable>enable</Nullable>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>QualityGate.RealTime</PackageId>
+        <Title>Real time data with SignalR</Title>
+        <Authors>Ariel Felipe Camacho Díaz</Authors>
+        <Description>Contains a SignalR Hub and some abstractions to expose  websocket connections to clients to listen and keep synced database queries on a RavenDB.</Description>
+        <RepositoryUrl>https://github.com/qualitygate/real-time</RepositoryUrl>
+        <Company>QualityGate</Company>
+        <Product>QualityGate.RealTime</Product>
+        <AssemblyVersion>1.0.0</AssemblyVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />
+      <PackageReference Include="Microsoft.Extensions.Configuration" Version="6.0.0" />
+      <PackageReference Include="RavenDB.Client" Version="5.3.0" />
+    </ItemGroup>
+
+</Project>
