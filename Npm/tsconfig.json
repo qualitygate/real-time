@@ -1,0 +1,30 @@
+{
+	"compilerOptions": {
+		"allowJs": true,
+		"declaration": true,
+		"target": "es6",
+		"resolveJsonModule": true,
+		"sourceMap": true,
+		"outDir": "./dist",
+		"skipLibCheck": true,
+		"allowSyntheticDefaultImports": true,
+		"lib": [
+			"dom",
+			"es2018"
+		],
+		"moduleResolution": "node",
+		"module": "esnext",
+		"jsx": "react",
+		"importHelpers": true,
+		"types": [
+		]
+	},
+	"include": [
+		"./components",
+		"./contracts",
+		"./database"
+	],
+	"exclude": [
+		"./node_modules"
+	]
+}
