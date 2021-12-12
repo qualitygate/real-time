@@ -58,8 +58,8 @@ namespace QualityGate.RealTime.Tests.Notification
                     ClientConnectionId,
                     query.Name,
                     Arg.Is<ExternalChange[]>(changes =>
-                        changes[0] == new ExternalChange(entities.First(), ChangeType.Upsert) &&
-                        changes[1] == new ExternalChange(entities.Last(), ChangeType.Upsert)));
+                        changes[0].Entity == entities.First() && changes[0].Type == ChangeType.Upsert &&
+                        changes[1].Entity == entities.Last() && changes[1].Type == ChangeType.Upsert));
         }
 
         #region Notify
@@ -76,7 +76,10 @@ namespace QualityGate.RealTime.Tests.Notification
             // No notification is sent anywhere
             _clientPool
                 .Received(0)
-                .InvokeMethodAsync(Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>(),
+                .InvokeMethodAsync(
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
+                    Arg.Any<string>(),
                     Arg.Any<ExternalChange[]>());
         }
 
@@ -127,7 +130,7 @@ namespace QualityGate.RealTime.Tests.Notification
             // The repository does not anymore recognize the query as a directly impacted one
             _queryRepository
                 .SelectMatching(Arg.Is<Change>(
-                    c => c.Entity.Id == entities.First().Id &&
+                    c => ((IEntity)c.Entity).Id == entities.First().Id &&
                          c.Table == query.Table &&
                          c.Type == ChangeType.Upsert))
                 .Returns(Array.Empty<Query>());
@@ -135,7 +138,7 @@ namespace QualityGate.RealTime.Tests.Notification
             // But recognizes the it's a query matching entities of the same type as the changed one
             _queryRepository
                 .SelectMatchingTable(Arg.Is<Change>(
-                    c => c.Entity.Id == entities.First().Id &&
+                    c => ((IEntity)c.Entity).Id == entities.First().Id &&
                          c.Table == query.Table &&
                          c.Type == ChangeType.Upsert))
                 .Returns(new[] { query });
@@ -200,37 +203,37 @@ namespace QualityGate.RealTime.Tests.Notification
 
         private TestData PrepareScenario(ChangeType entityChange = ChangeType.Upsert)
         {
-            IEntity[] entities = { Stubs.NewEntity, Stubs.NewEntity };
+            object[] entities = { Stubs.NewEntity, Stubs.NewEntity };
 
             var query = new Query(ClientConnectionId, "query#1", "entities");
             var matchedQuery = query with { };
 
             _queryRepository
                 .SelectMatching(Arg.Is<Change>(
-                    c => c.Entity.Id == entities.First().Id &&
+                    c => ((IEntity)c.Entity).Id == ((IEntity)entities.First()).Id &&
                          c.Table == query.Table &&
                          c.Type == entityChange))
                 .Returns(new[] { matchedQuery });
             _queryRepository
                 .SelectMatching(Arg.Is<Change>(
-                    c => c.Entity.Id == entities.Last().Id &&
+                    c => ((IEntity)c.Entity).Id == ((IEntity)entities.Last()).Id &&
                          c.Table == query.Table &&
                          c.Type == entityChange))
                 .Returns(new[] { matchedQuery });
 
-            var asyncDocumentQuery = Substitute.For<IAsyncRawDocumentQuery<IEntity>>();
+            var asyncDocumentQuery = Substitute.For<IAsyncRawDocumentQuery<object>>();
             asyncDocumentQuery.ToArrayAsync().Returns(entities);
 
-            _entityRepository.Find<IEntity>(query).Returns(entities);
-            _entityRepository.Find<IEntity>(entities.First().Id!).Returns(entities.First());
-            _entityRepository.Find<IEntity>(entities.Last().Id!).Returns(entities.Last());
+            _entityRepository.Find<object>(query).Returns(entities);
+            _entityRepository.Find<object>(((IEntity)entities.First()).Id!).Returns(entities.First());
+            _entityRepository.Find<object>(((IEntity)entities.Last()).Id!).Returns(entities.Last());
 
             _clientPool
                 .InvokeMethodAsync(ClientConnectionId, ClientMethods.EntityChanged, query.Name,
                     Arg.Any<ExternalChange[]>())
                 .Returns(Task.CompletedTask);
 
-            return new TestData(entities, query);
+            return new TestData(entities.Cast<IEntity>().ToArray(), query);
         }
 
         private record TestData(IEntity[] Entities, Query Query);

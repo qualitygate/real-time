@@ -17,7 +17,7 @@ namespace QualityGate.RealTime.Domain
         ///     A <see cref="Task"/> that asynchronously does the search and will eventually contain the entities
         ///     satisfying the specified <paramref name="query"/>.
         /// </returns>
-        Task<T[]> Find<T>(Query query) where T : IEntity;
+        Task<T[]> Find<T>(Query query);
 
         /// <summary>
         ///     Gets the single entity identified the given id.
@@ -31,6 +31,6 @@ namespace QualityGate.RealTime.Domain
         ///     A <see cref="Task"/> that asynchronously does the search and will eventually contain the entity
         ///     containing the specified <paramref name="id"/>.
         /// </returns>
-        Task<T> Find<T>(string id) where T : IEntity;
+        Task<T> Find<T>(string id);
     }
 }

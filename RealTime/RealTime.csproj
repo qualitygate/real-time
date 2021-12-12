@@ -18,6 +18,7 @@
         <PackageReleaseNotes>- Adds a Hub to connect to from web components.
 - Register queries from the web components through the Hub.
 - Registered queries get notified on real-time of changes to domain entities matching their criteria.</PackageReleaseNotes>
+        <PackageVersion>1.0.1</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

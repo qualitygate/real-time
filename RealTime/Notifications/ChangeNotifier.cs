@@ -53,7 +53,7 @@ namespace QualityGate.RealTime.Notifications
         public async Task NotifyFirstTime(Query query)
         {
             _logger.LogDebug($"Searching entities to satisfy the query: {query.Name} for client: {query.ConnectionId}");
-            var entities = await _entityRepository.Find<IEntity>(query);
+            var entities = await _entityRepository.Find<object>(query);
 
             _logger.LogDebug($"Found {entities.Length} entities satisfying the query, notifying connected clients");
             var changes = entities.Select(e => new Change(e, query.Table, ChangeType.Upsert));
@@ -93,7 +93,7 @@ namespace QualityGate.RealTime.Notifications
             }
             else
             {
-                var entity = await _entityRepository.Find<IEntity>(documentChange.Id);
+                var entity = await _entityRepository.Find<object>(documentChange.Id);
                 var changeType = documentChange.Type switch
                 {
                     DocumentChangeTypes.Put => ChangeType.Upsert,
@@ -134,7 +134,7 @@ namespace QualityGate.RealTime.Notifications
         {
             var entity = change.Entity;
 
-            _logger.LogDebug($"Entity of type: {entity.GetType().Name} with Id: {entity.Id}, " +
+            _logger.LogDebug($"Entity of type: {entity.GetType().Name}, " +
                              $"suffered a {change.Type.ToString()} operation");
 
             Query[] matchingQueriesByConditions = _queryRepository.SelectMatching(change);
