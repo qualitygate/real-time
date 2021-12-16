@@ -32,5 +32,15 @@ namespace QualityGate.RealTime.Queries
         ///     Gets or sets the Name of the table to get entities from.
         /// </summary>
         public string Table { get; set; } = "?";
+
+        /// <summary>
+        ///     Gets or sets the elements to take from all the instances in the query.
+        /// </summary>
+        public int? Take { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the elements to skip from all the instances in the query.
+        /// </summary>
+        public int? Skip { get; set; }
     };
 }

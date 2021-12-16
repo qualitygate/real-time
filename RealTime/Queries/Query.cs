@@ -30,6 +30,16 @@ namespace QualityGate.RealTime.Queries
         /// <inheritdoc cref="QueryDto.OrderBy"/>
         public OrderBy? OrderBy { get; set; }
 
+        /// <summary>
+        ///     Gets or sets the elements to take from all the instances in the query.
+        /// </summary>
+        public int? Take { get; set; }
+
+        /// <summary>
+        ///     Gets or sets the elements to skip from all the instances in the query.
+        /// </summary>
+        public int? Skip { get; set; }
+
 
         /// <summary>
         ///     Determines whether the provided entity change matches the query criteria.
