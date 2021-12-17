@@ -13,12 +13,12 @@
         <RepositoryUrl>https://github.com/qualitygate/real-time</RepositoryUrl>
         <Company>QualityGate</Company>
         <Product>QualityGate.RealTime</Product>
-        <AssemblyVersion>1.0.0</AssemblyVersion>
+        <AssemblyVersion>1.1.0</AssemblyVersion>
         <PackageTags>signalr database websocket sync</PackageTags>
         <PackageReleaseNotes>- Adds a Hub to connect to from web components.
 - Register queries from the web components through the Hub.
 - Registered queries get notified on real-time of changes to domain entities matching their criteria.</PackageReleaseNotes>
-        <PackageVersion>1.0.1</PackageVersion>
+        <PackageVersion>1.1.0</PackageVersion>
     </PropertyGroup>
 
     <ItemGroup>

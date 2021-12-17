@@ -32,6 +32,8 @@ namespace QualityGate.RealTime.Tests
         }
 
 
+        #region Find all
+
         [TestMethod]
         public void Find_GivenQuery_ReturnsEntitiesSatisfyingIt()
         {
@@ -40,6 +42,8 @@ namespace QualityGate.RealTime.Tests
             IEntity[] expectedEntities = { Stubs.NewEntity with { Id = Guid.NewGuid().ToString() } };
 
             var queryResult = Substitute.For<IAsyncRawDocumentQuery<IEntity>>();
+            queryResult.Skip(0).Returns(queryResult);
+            queryResult.Take(int.MaxValue).Returns(queryResult);
             queryResult.ToArrayAsync().Returns(expectedEntities);
             _advancedOperations.AsyncRawQuery<IEntity>(query).Returns(queryResult);
 
@@ -49,6 +53,32 @@ namespace QualityGate.RealTime.Tests
             // Then
             CollectionAssert.AreEquivalent(expectedEntities, result);
         }
+
+        [TestMethod]
+        public void Find_GivenQueryWithSlicing_ReturnsSlicedQueryResult()
+        {
+            // Given
+            var query = new Query("c#1", "all", "entities") { Skip = 2, Take = 3 };
+            IEntity[] expectedEntities = { Stubs.NewEntity with { Id = Guid.NewGuid().ToString() } };
+
+            var queryResult = Substitute.For<IAsyncRawDocumentQuery<IEntity>>();
+
+            queryResult.Skip(2).Returns(queryResult);
+            queryResult.Take(3).Returns(queryResult);
+            queryResult.ToArrayAsync().Returns(expectedEntities);
+
+            _advancedOperations.AsyncRawQuery<IEntity>(query).Returns(queryResult);
+
+            // When
+            var result = _subject.Find<IEntity>(query).WaitForResult();
+
+            // Then
+            CollectionAssert.AreEquivalent(expectedEntities, result);
+            queryResult.Received().Skip(2);
+            queryResult.Received().Take(3);
+        }
+
+        #endregion
 
         #region Find by id
 

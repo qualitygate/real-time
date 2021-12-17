@@ -23,10 +23,14 @@ namespace QualityGate.RealTime.Domain
 
 
         /// <inheritdoc cref="IEntityRepository.Find{T}(QualityGate.RealTime.Queries.Query)"/>
-        public async Task<T[]> Find<T>(Query query)
+        public Task<T[]> Find<T>(Query query)
         {
             using var session = _documentStore.OpenAsyncSession();
-            return await session.Advanced.AsyncRawQuery<T>(query).ToArrayAsync();
+            return session.Advanced
+                .AsyncRawQuery<T>(query)
+                .Skip(query.Skip ?? 0)
+                .Take(query.Take ?? int.MaxValue)
+                .ToArrayAsync();
         }
 
         /// <inheritdoc cref="IEntityRepository.Find{T}(string)"/>

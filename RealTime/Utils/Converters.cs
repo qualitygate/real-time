@@ -26,7 +26,9 @@ namespace QualityGate.RealTime.Utils
             {
                 Fields = queryDto.Fields,
                 Conditions = queryDto.Conditions?.Select(ToCondition).ToArray(),
-                OrderBy = queryDto.OrderBy
+                OrderBy = queryDto.OrderBy,
+                Take = queryDto.Take,
+                Skip = queryDto.Skip
             };
         }
 

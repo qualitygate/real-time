@@ -113,7 +113,9 @@ namespace QualityGate.RealTime.Tests.Queries
                 {
                     Ascending = false,
                     Fields = new[] { "Name", "Id" }
-                }
+                },
+                Skip = 30,
+                Take = 10
             };
 
             // When

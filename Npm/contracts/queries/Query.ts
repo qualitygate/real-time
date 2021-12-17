@@ -7,14 +7,9 @@ import {OrderBy} from './OrderBy'
  */
 export interface Query {
 	/**
-	 * Name of the query. It should be unique.
+	 * Set of conditions to evaluate when executing the query (can be understood as thw where(s) in a SQL query).
 	 */
-	name: string,
-
-	/**
-	 * Name of the table of the entities to query.
-	 */
-	table: string
+	conditions?: Condition[]
 
 	/**
 	 * Set of fields representing the projection we want from each entity. If null, it means there are desired all the
@@ -23,12 +18,27 @@ export interface Query {
 	fields?: string[]
 
 	/**
-	 * Set of conditions to evaluate when executing the query (can be understood as thw where(s) in a SQL query).
-	 */
-	conditions?: Condition[]
-
-	/**
 	 * Sets the ordering criteria of this query results.
 	 */
 	orderBy?: OrderBy
+
+	/**
+	 * Name of the query. It should be unique.
+	 */
+	name: string
+
+	/**
+	 * Number of elements to skip.
+	 */
+	skip?: number
+
+	/**
+	 * Name of the table of the entities to query.
+	 */
+	table: string
+
+	/**
+	 * How many elements to take.
+	 */
+	take?: number
 }
