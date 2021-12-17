@@ -25,7 +25,9 @@ namespace QualityGate.RealTime.Tests
                 {
                     Fields = new[] { "Name", "Age" },
                     Ascending = true
-                }
+                },
+                Take = 10,
+                Skip = 15
             };
             const string connectionId = "connection#1";
 
@@ -41,7 +43,9 @@ namespace QualityGate.RealTime.Tests
                     new Condition("Name", OperatorBase.Eq, "John") { ContinueWith = ContinuationOperator.And },
                     new Condition("Age", OperatorBase.Eq, 30)
                 },
-                OrderBy = queryDto.OrderBy
+                OrderBy = queryDto.OrderBy,
+                Skip = 15,
+                Take = 10
             };
             query.AssertEqualByValues(expectedQuery, nameof(Query.Fields), nameof(Query.Conditions), nameof(OrderBy));
 
