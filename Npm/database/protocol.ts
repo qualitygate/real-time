@@ -10,8 +10,9 @@ export interface Change {
 }
 
 export const AddQuery = 'AddQuery'
+export const ModifyQuery = 'ModifyQuery'
 export const RemoveQuery = 'RemoveQuery'
-export type ServerFunction = typeof AddQuery | typeof RemoveQuery
+export type ServerFunction = typeof AddQuery | typeof ModifyQuery | typeof RemoveQuery
 
 export const EntityChanged = 'entityChanged'
 export type ClientFunction = typeof EntityChanged

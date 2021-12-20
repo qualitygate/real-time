@@ -1,7 +1,17 @@
 import {HubConnection, HubConnectionBuilder, HubConnectionState, IRetryPolicy} from '@microsoft/signalr'
 import {Entity, Query} from '../contracts'
 import {each, filter, find, has, indexOf, isNil} from 'lodash'
-import {AddQuery, Change, ClientFunction, Delete, EntityChanged, RemoveQuery, ServerFunction, Upsert} from './protocol'
+import {
+	AddQuery,
+	Change,
+	ClientFunction,
+	Delete,
+	EntityChanged,
+	ModifyQuery,
+	RemoveQuery,
+	ServerFunction,
+	Upsert
+} from './protocol'
 import {DatabaseListeners} from './DatabaseListeners'
 import {DatabaseOptions} from './DatabaseOptions'
 import {CONNECTED, DISCONNECTED} from './DatabaseStatus'
@@ -41,6 +51,14 @@ export interface Database {
 	 * Gets the associated listener collection.
 	 */
 	listeners: DatabaseListeners
+
+	/**
+	 * Modifies an existing query given its new definition.
+	 *
+	 * @param query: Query to modify.
+	 * @return {Promise<void>} that executes the modification of the query.
+	 */
+	modifyQuery: (query: Query) => Promise<void>
 
 	/**
 	 * Gets the name of the database.
@@ -94,7 +112,7 @@ export class DatabaseImpl implements Database {
 
 	async addQuery<T>(query: Query, setItems: (i: T[]) => void): Promise<void> {
 		if (!isNil(find(this._queries, q => q.name === query.name))) {
-			this._warn(`Query: ${query.name} already exists. They can only be added once`)
+			this._warn(`Query: ${query.name} already exists. They can only be added once.`)
 			return
 		}
 
@@ -156,6 +174,17 @@ export class DatabaseImpl implements Database {
 		} catch (e) {
 			console.log('Error connecting to database', e)
 		}
+	}
+
+	async modifyQuery(query: Query): Promise<void> {
+		if (isNil(find(this._queries, q => q.name === query.name))) {
+			this._warn(`Query: ${query.name} does not exist.`)
+			return
+		}
+
+		this._debug(`Modifying query name: ${query.name}, with the new definition: ${JSON.stringify(query)}`)
+		await this._sendMessage(ModifyQuery, query)
+		this._queries[query.name].query = query
 	}
 
 	async removeQuery(name: string): Promise<void> {
