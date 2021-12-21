@@ -130,7 +130,7 @@ export class DatabaseImpl implements Database {
 	}
 
 	async addPageQuery<T>(pageQuery: Query, setPageInfo: (pageInfo: PageInfo<T>) => void) {
-		this._checkConnected()
+		this.checkConnected()
 
 		if (!isNil(find(this._queries, q => q.name === pageQuery.name))) {
 			this._logger.warn(`Page query: ${pageQuery.name} already exists. They can only be added once.`)
@@ -153,7 +153,7 @@ export class DatabaseImpl implements Database {
 	}
 
 	async addQuery<T>(query: Query, setItems: (i: T[]) => void): Promise<void> {
-		this._checkConnected()
+		this.checkConnected()
 
 		if (!isNil(find(this._queries, q => q.name === query.name))) {
 			this._logger.warn(`Query: ${query.name} already exists. They can only be added once.`)
@@ -202,9 +202,9 @@ export class DatabaseImpl implements Database {
 			this._logger.debug('Creating connection builder')
 			this._connection = this._connectionProvider.createConnection(options)
 
-			this._connection.onreconnected(() => this._reconnectQueries())
-			this._on(EntityChanged, (queryName, entities) => this._onEntityChanged(queryName, entities))
-			this._on(PageChanged, (queryName, pageInfo) => this._onPageChanged(queryName, pageInfo))
+			this._connection.onreconnected(() => this.reconnectQueries())
+			this.on(EntityChanged, (queryName, entities) => this.onEntityChanged(queryName, entities))
+			this.on(PageChanged, (queryName, pageInfo) => this.onPageChanged(queryName, pageInfo))
 
 			this._logger.debug('Starting connection')
 			await this._connection.start()
@@ -217,7 +217,7 @@ export class DatabaseImpl implements Database {
 	}
 
 	async modifyQuery(query: Query): Promise<void> {
-		this._checkConnected()
+		this.checkConnected()
 
 		if (isNil(find(this._queries, q => q.name === query.name))) {
 			this._logger.warn(`Query: ${query.name} does not exist.`)
@@ -230,14 +230,14 @@ export class DatabaseImpl implements Database {
 	}
 
 	async removeQuery(name: string): Promise<void> {
-		this._checkConnected()
+		this.checkConnected()
 
 		if (!has(this._queries, name)) return
 		delete this._queries[name]
 		await this._connection.send(RemoveQuery, name)
 	}
 
-	private _checkConnected() {
+	private checkConnected() {
 		if (this.ready) return
 
 		throw new Error(
@@ -245,18 +245,18 @@ export class DatabaseImpl implements Database {
 		)
 	}
 
-	private _deleteById(entities: Entity[], change: Change) {
+	private deleteById(entities: Entity[], change: Change) {
 		const entityToRemove = find(entities, e => e.id === change.entity.id)
 		if (isNil(entityToRemove)) return
 		const index = indexOf(entities, entityToRemove)
 		entities.splice(index, 1)
 	}
 
-	private _mergeEntities(entities: Entity[], changes: Change[]): Entity[] {
+	private mergeEntities(entities: Entity[], changes: Change[]): Entity[] {
 		// Removing deleted entities
 		const entitiesCache = [...entities]
 		const deletionChanges = filter(changes, c => c.type === Delete)
-		each(deletionChanges, dc => this._deleteById(entitiesCache, dc))
+		each(deletionChanges, dc => this.deleteById(entitiesCache, dc))
 
 		// Update the current entities
 		const addChanges = filter(changes, c => c.type === Upsert)
@@ -272,22 +272,22 @@ export class DatabaseImpl implements Database {
 		return entitiesCache
 	}
 
-	private _on(clientMethod: ClientFunction, fn: (...args: any[]) => void) {
+	private on(clientMethod: ClientFunction, fn: (...args: any[]) => void) {
 		this._connection.on(clientMethod, fn)
 	}
 
-	private _onEntityChanged(queryName: string, changes: Change[]) {
+	private onEntityChanged(queryName: string, changes: Change[]) {
 		this._logger.debug(`Received entities ${changes?.length ?? 0} change(s) for query: ${queryName}`)
 		const query = find(this._queries, e => e.name === queryName)
 
 		this._logger.debug('Merging entities cache')
-		query.cache = this._mergeEntities(query.cache, changes)
+		query.cache = this.mergeEntities(query.cache, changes)
 
 		this._logger.debug('Notifying listening clients')
 		query.notifyChanges(query.cache)
 	}
 
-	private _onPageChanged(queryName: string, pageInfo: PageInfo<any>) {
+	private onPageChanged(queryName: string, pageInfo: PageInfo<any>) {
 		this._logger.debug(`Received entities ${pageInfo.items?.length ?? 0} change(s) for query: ${queryName}`)
 		const query = find(this._queries, e => e.name === queryName)
 
@@ -295,7 +295,7 @@ export class DatabaseImpl implements Database {
 		query.notifyChanges(pageInfo)
 	}
 
-	private async _reconnectQueries() {
+	private async reconnectQueries() {
 		const entries = {...this._queries}
 
 		this._queries = {}

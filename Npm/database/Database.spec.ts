@@ -83,9 +83,9 @@ describe('DatabaseImpl tests', () => {
 	describe('Initialization', () => {
 		it('establishes the connection to the backend', async () => {
 			// Given, there are substituted internal functions for stubs
-			const entityChangedStub = sinon.stub(database, '_onEntityChanged' as any)
-			const pageChangedStub = sinon.stub(database, '_onPageChanged' as any)
-			const reconnectQueriesStub = sinon.stub(database, '_reconnectQueries' as any)
+			const entityChangedStub = sinon.stub(database, 'onEntityChanged' as any)
+			const pageChangedStub = sinon.stub(database, 'onPageChanged' as any)
+			const reconnectQueriesStub = sinon.stub(database, 'reconnectQueries' as any)
 
 			// When
 			await database.initialize(connectionOptions)
@@ -213,7 +213,7 @@ describe('DatabaseImpl tests', () => {
 				await database.addPageQuery<any>(query, setPageInfo);
 
 				// When, the new page of entities arrives
-				(database as any)._onPageChanged(query.name, newPageInfo)
+				(database as any).onPageChanged(query.name, newPageInfo)
 
 				// Then, the notification must have come
 				setPageInfo.calledOnceWithExactly(newPageInfo)
@@ -275,21 +275,21 @@ describe('DatabaseImpl tests', () => {
 				await database.addQuery<any>(query, setEntities);
 
 				// When, the new page of entities arrives
-				(database as any)._onEntityChanged(query.name, changes)
+				(database as any).onEntityChanged(query.name, changes)
 
 				// Then, the notification must have come
 				expect(setEntities.calledWithExactly([entity2])).toBeTruthy()
 
 				// When done a second notification
 				changes = [{entity: entity3, type: Upsert}, {entity: {...entity2, name: 'E22'}, type: Upsert}];
-				(database as any)._onEntityChanged(query.name, changes)
+				(database as any).onEntityChanged(query.name, changes)
 
 				// Then
 				expect(setEntities.calledWithExactly([{...entity2, name: 'E22'}, entity3])).toBeTruthy()
 
 				// When a third notification arrives
 				changes = [{entity: entity2, type: Delete}];
-				(database as any)._onEntityChanged(query.name, changes)
+				(database as any).onEntityChanged(query.name, changes)
 
 				// Then
 				expect(setEntities.calledWithExactly([entity3])).toBeTruthy()
@@ -313,8 +313,7 @@ describe('DatabaseImpl tests', () => {
 				// Given the new query definition
 				const newQuery: Query = {...query, size: 100, name: 'Some strange query'}
 
-				// When
-
+				// When the query gets modified
 				await database.modifyQuery(newQuery)
 
 				// Then it must notify the backend the query definition must be updated
@@ -387,7 +386,7 @@ describe('DatabaseImpl tests', () => {
 			(connection.send as SinonStub).reset()
 
 			// When
-			await (database as any)._reconnectQueries()
+			await (database as any).reconnectQueries()
 
 			// Then, the query registration must occur
 			expect((connection.send as SinonStub).calledOnceWithExactly(AddQuery, query)).toBeTruthy()
@@ -399,7 +398,7 @@ describe('DatabaseImpl tests', () => {
 			(connection.send as SinonStub).reset()
 
 			// When
-			await (database as any)._reconnectQueries()
+			await (database as any).reconnectQueries()
 
 			// Then, the query registration must occur
 			expect((connection.send as SinonStub).calledOnceWithExactly(AddPageQuery, query)).toBeTruthy()
