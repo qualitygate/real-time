@@ -26,6 +26,17 @@ export interface Database {
 	 */
 	ready: boolean
 
+	/**
+	 * Register the given paginated query for real-time synchronization. A paginated query is a one that is meant to
+	 * retrived a portion of the whole universe of entities of T type.
+	 *
+	 * @param pageQuery: Definition of a paginated query, which represents the criteria to select a portion of entities of
+	 * a certain type at which the current app is interested on. It also slices the results by using the
+	 * {@link Query.page} (number of the slice to fetch) and {@link Query.size} (representing the number of elements per
+	 * slice).
+	 * @param setPageInfo {Function}: Invoked each time the result of the query evaluation changes, used to notify the new
+	 * query resultant items. This function must be able to receive a {@link PageInfo} object as single parameter.
+	 */
 	addPageQuery: <T>(pageQuery: Query, setPageInfo: (pageInfo: PageInfo<T>) => void) => Promise<void>
 
 	/**
@@ -206,6 +217,8 @@ export class DatabaseImpl implements Database {
 	}
 
 	async modifyQuery(query: Query): Promise<void> {
+		this._checkConnected()
+
 		if (isNil(find(this._queries, q => q.name === query.name))) {
 			this._logger.warn(`Query: ${query.name} does not exist.`)
 			return
@@ -217,6 +230,8 @@ export class DatabaseImpl implements Database {
 	}
 
 	async removeQuery(name: string): Promise<void> {
+		this._checkConnected()
+
 		if (!has(this._queries, name)) return
 		delete this._queries[name]
 		await this._connection.send(RemoveQuery, name)
@@ -226,7 +241,7 @@ export class DatabaseImpl implements Database {
 		if (this.ready) return
 
 		throw new Error(
-			'Database must be connected to register queries. Please initialize it first, and make sure it\'s so.'
+			'Database must be connected to manage queries. Please initialize it first, and make sure it\'s so.'
 		)
 	}
 

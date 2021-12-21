@@ -8,7 +8,17 @@ import {SinonStub} from 'sinon'
 import {range} from 'lodash'
 import {HubConnection, HubConnectionState} from '@microsoft/signalr'
 import {Logger} from '../utils/Logger'
-import {AddPageQuery, AddQuery, Change, Delete, EntityChanged, PageChanged, Upsert} from './protocol'
+import {
+	AddPageQuery,
+	AddQuery,
+	Change,
+	Delete,
+	EntityChanged,
+	ModifyQuery,
+	PageChanged,
+	RemoveQuery,
+	Upsert
+} from './protocol'
 import {CONNECTED, DISCONNECTED} from './DatabaseStatus'
 
 describe('DatabaseImpl tests', () => {
@@ -151,7 +161,7 @@ describe('DatabaseImpl tests', () => {
 		it('throws an error if not connected', async () => {
 			await expect(() => database.addPageQuery<any>(query, doNothing))
 				.rejects
-				.toThrow('Database must be connected to register queries. Please initialize it first, and make sure it\'s so.')
+				.toThrow('Database must be connected to manage queries. Please initialize it first, and make sure it\'s so.')
 		})
 
 		describe('and it\'s connect', () => {
@@ -215,7 +225,7 @@ describe('DatabaseImpl tests', () => {
 		it('throws an error if not connected', async () => {
 			await expect(() => database.addQuery<any>(query, doNothing))
 				.rejects
-				.toThrow('Database must be connected to register queries. Please initialize it first, and make sure it\'s so.')
+				.toThrow('Database must be connected to manage queries. Please initialize it first, and make sure it\'s so.')
 		})
 
 		describe('and it\'s connect', () => {
@@ -276,7 +286,123 @@ describe('DatabaseImpl tests', () => {
 
 				// Then
 				expect(setEntities.calledWithExactly([{...entity2, name: 'E22'}, entity3])).toBeTruthy()
+
+				// When a third notification arrives
+				changes = [{entity: entity2, type: Delete}];
+				(database as any)._onEntityChanged(query.name, changes)
+
+				// Then
+				expect(setEntities.calledWithExactly([entity3])).toBeTruthy()
 			})
+		})
+	})
+
+	describe('Query modifications', () => {
+		it('throws an error if not connected', async () => {
+			await expect(() => database.modifyQuery(query))
+				.rejects
+				.toThrow('Database must be connected to manage queries. Please initialize it first, and make sure it\'s so.')
+		})
+
+		describe('it\'s connected', () => {
+			beforeEach(async () => {
+				await database.initialize(connectionOptions)
+			})
+
+			it('avoids modified definition of non-existing query', async () => {
+				// Given the new query definition
+				const newQuery: Query = {...query, size: 100, name: 'Some strange query'}
+
+				// When
+
+				await database.modifyQuery(newQuery)
+
+				// Then it must notify the backend the query definition must be updated
+				expect((connection.send as SinonStub).notCalled).toBeTruthy()
+
+				// And a warning to the developer is issued
+				expect((logger.warn as SinonStub).calledOnceWithExactly(`Query: ${newQuery.name} does not exist.`))
+			})
+
+			it('modifies the query definition on the backend', async () => {
+				// Given the new query definition
+				const newQuery: Query = {...query, size: 100}
+
+				// And the original query already exists
+				await database.addQuery(query, doNothing)
+
+				// When
+				await database.modifyQuery(newQuery)
+
+				// Then it must notify the backend the query definition must be updated
+				expect((connection.send as SinonStub).calledWithExactly(ModifyQuery, newQuery)).toBeTruthy()
+			})
+		})
+	})
+
+	describe('Query removal', () => {
+		it('throws an error if not connected', async () => {
+			await expect(() => database.removeQuery(query.name))
+				.rejects
+				.toThrow('Database must be connected to manage queries. Please initialize it first, and make sure it\'s so.')
+		})
+
+		describe('it\'s connected', () => {
+			beforeEach(async () => {
+				await database.initialize(connectionOptions)
+			})
+
+			it('ignores non-existing queries', async () => {
+				// When, removing a query that was not previously registered
+				await database.removeQuery('some-query')
+
+				// Then, it should do nothing
+				expect((connection.send as SinonStub).notCalled).toBeTruthy()
+
+				// And notify the user about
+				expect((logger.warn as SinonStub).calledOnceWithExactly(`Query: ${query.name} does not exist.`))
+			})
+
+			it('removes given query if exists', async () => {
+				// Given a registered query
+				await database.addQuery(query, sinon.stub())
+
+				// When, removing a query that was not previously registered
+				await database.removeQuery(query.name)
+
+				// Then, it should do nothing
+				expect((connection.send as SinonStub).calledWithExactly(RemoveQuery, query.name)).toBeTruthy()
+			})
+		})
+	})
+
+	describe('Queries reconnection', () => {
+		beforeEach(async () => {
+			await database.initialize(connectionOptions)
+		})
+
+		it('reconnects a normal query if connection comes back on', async () => {
+			// Given a registered query
+			await database.addQuery(query, sinon.stub());
+			(connection.send as SinonStub).reset()
+
+			// When
+			await (database as any)._reconnectQueries()
+
+			// Then, the query registration must occur
+			expect((connection.send as SinonStub).calledOnceWithExactly(AddQuery, query)).toBeTruthy()
+		})
+
+		it('reconnects a paged query if connection comes back on', async () => {
+			// Given a registered paged query
+			await database.addPageQuery(query, sinon.stub());
+			(connection.send as SinonStub).reset()
+
+			// When
+			await (database as any)._reconnectQueries()
+
+			// Then, the query registration must occur
+			expect((connection.send as SinonStub).calledOnceWithExactly(AddPageQuery, query)).toBeTruthy()
 		})
 	})
 
@@ -350,7 +476,7 @@ function setupHubConnection(connectionId: string): HubConnection {
 		onreconnected: sinon.stub(),
 		start: connectionStart,
 		stop: sinon.stub(),
-		send: sinon.stub(connection, 'send')
+		send: sinon.stub()
 	} as any
 }
 
