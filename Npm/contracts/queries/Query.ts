@@ -28,9 +28,9 @@ export interface Query {
 	name: string
 
 	/**
-	 * Number of elements to skip.
+	 * Number of the slice of elements to fetch.
 	 */
-	skip?: number
+	page?: number
 
 	/**
 	 * Name of the table of the entities to query.
@@ -38,7 +38,7 @@ export interface Query {
 	table: string
 
 	/**
-	 * How many elements to take.
+	 * How many to fetch in the slice defined by {@link page}.
 	 */
-	take?: number
+	size?: number
 }

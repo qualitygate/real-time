@@ -1,4 +1,4 @@
 export * from './Database'
-export * from './DatabaseOptions'
+export * from '../connection/ConnectionOptions'
 export * from './DatabaseStatus'
 export * from './DatabaseStatusListener'

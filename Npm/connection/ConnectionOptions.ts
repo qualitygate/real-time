@@ -1,7 +1,7 @@
 /**
  * Describe the options that you can pass to a database initialization.
  */
-export interface DatabaseOptions {
+export interface ConnectionOptions {
 	/**
 	 * Url to which the client database driver will point to. This must point to a valid SignalR HUB endpoint.
 	 */

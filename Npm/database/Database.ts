@@ -142,6 +142,8 @@ export class DatabaseImpl implements Database {
 	}
 
 	async addQuery<T>(query: Query, setItems: (i: T[]) => void): Promise<void> {
+		this._checkConnected()
+
 		if (!isNil(find(this._queries, q => q.name === query.name))) {
 			this._logger.warn(`Query: ${query.name} already exists. They can only be added once.`)
 			return
@@ -168,7 +170,7 @@ export class DatabaseImpl implements Database {
 			await this._connection.stop()
 			this._logger.debug('Connection closed')
 		} catch (e) {
-			this._logger.error('Error disconnecting database')
+			this._logger.error('Error disconnecting database', e)
 		} finally {
 			this.listeners.notify(DISCONNECTED)
 			this._queries = {}
