@@ -1,26 +1,32 @@
-import {HubConnection, HubConnectionBuilder, HubConnectionState, IRetryPolicy} from '@microsoft/signalr'
-import {Entity, Query} from '../contracts'
+import {HubConnection, HubConnectionState} from '@microsoft/signalr'
+import {Entity, PageInfo, Query} from '../contracts'
 import {each, filter, find, has, indexOf, isNil} from 'lodash'
 import {
+	AddPageQuery,
 	AddQuery,
 	Change,
 	ClientFunction,
 	Delete,
 	EntityChanged,
 	ModifyQuery,
+	PageChanged,
 	RemoveQuery,
 	ServerFunction,
 	Upsert
 } from './protocol'
 import {DatabaseListeners} from './DatabaseListeners'
-import {DatabaseOptions} from './DatabaseOptions'
+import {ConnectionOptions} from '../connection/ConnectionOptions'
 import {CONNECTED, DISCONNECTED} from './DatabaseStatus'
+import {ConnectionProvider} from '../connection/Connection'
+import {Logger, LoggerImpl} from '../utils/Logger'
 
 export interface Database {
 	/**
 	 * Determines whether the database has been completely initialized and ready to use.
 	 */
 	ready: boolean
+
+	addPageQuery: <T>(pageQuery: Query, setPageInfo: (pageInfo: PageInfo<T>) => void) => Promise<void>
 
 	/**
 	 * Register the given query for real-time synchronization.
@@ -42,10 +48,10 @@ export interface Database {
 	/**
 	 * Initializes the database and establishes the connection with the remote SignalR endpoint from which queries data
 	 * changes notifications will come.
-	 * @param options {Partial<DatabaseOptions>}: Partial options to pass to the initialization process.
+	 * @param options {Partial<ConnectionOptions>}: Partial options to pass to the initialization process.
 	 * @returns {Promise} that does the initialization process.
 	 */
-	initialize: (options: Partial<DatabaseOptions>) => Promise<void>
+	initialize: (options: Partial<ConnectionOptions>) => Promise<void>
 
 	/**
 	 * Gets the associated listener collection.
@@ -77,29 +83,31 @@ interface QueryEntry {
 	name: string
 	query: Query,
 	connectionId: string
-	notifyChanges: (items: any[]) => void
-	cache: any[]
+	notifyChanges: (items: any) => void
+	cache: any
+	isPaged: boolean
 }
 
 export class DatabaseImpl implements Database {
 	private _connection: HubConnection = null
+	private _connectionProvider: ConnectionProvider
 	private _queries: { [query: string]: QueryEntry } = {}
-	private readonly _inspector: DatabaseListeners
-	private _logger = 'Database'
+	private readonly _listeners: DatabaseListeners
+	private readonly _logger: Logger
 	private readonly _name: string
-	private _retryPolicy: IRetryPolicy = {
-		nextRetryDelayInMilliseconds(): number | null {
-			return 1000
-		}
-	}
 
-	constructor(name: string, inspector: DatabaseListeners) {
+	constructor(name: string,
+	            listeners: DatabaseListeners,
+	            connectionProvider?: ConnectionProvider,
+	            logger?: Logger) {
+		this._logger = logger ?? new LoggerImpl(name)
+		this._connectionProvider = connectionProvider ?? new ConnectionProvider()
 		this._name = name
-		this._inspector = inspector
+		this._listeners = listeners
 	}
 
 	public get listeners(): DatabaseListeners {
-		return this._inspector
+		return this._listeners
 	}
 
 	public get name(): string {
@@ -110,79 +118,98 @@ export class DatabaseImpl implements Database {
 		return this._connection?.state === HubConnectionState.Connected
 	}
 
-	async addQuery<T>(query: Query, setItems: (i: T[]) => void): Promise<void> {
-		if (!isNil(find(this._queries, q => q.name === query.name))) {
-			this._warn(`Query: ${query.name} already exists. They can only be added once.`)
+	async addPageQuery<T>(pageQuery: Query, setPageInfo: (pageInfo: PageInfo<T>) => void) {
+		this._checkConnected()
+
+		if (!isNil(find(this._queries, q => q.name === pageQuery.name))) {
+			this._logger.warn(`Page query: ${pageQuery.name} already exists. They can only be added once.`)
 			return
 		}
 
-		this._debug(`Adding query: ${query.name}, definition: ${JSON.stringify(query)}`)
+		this._logger.debug(`Adding page query: ${pageQuery.name}, definition: ${JSON.stringify(pageQuery)}`)
+		const connectionId = this._connection.connectionId
+		this._queries[pageQuery.name] = {
+			cache: {page: 0, size: 0, items: [], total: 0},
+			connectionId: connectionId,
+			isPaged: true,
+			name: pageQuery.name,
+			notifyChanges: setPageInfo,
+			query: pageQuery
+		}
+
+		await this._sendMessage(AddPageQuery, pageQuery)
+		this._logger.debug(`Page query: ${pageQuery.name}, connectionId: ${connectionId} added`)
+	}
+
+	async addQuery<T>(query: Query, setItems: (i: T[]) => void): Promise<void> {
+		if (!isNil(find(this._queries, q => q.name === query.name))) {
+			this._logger.warn(`Query: ${query.name} already exists. They can only be added once.`)
+			return
+		}
+
+		this._logger.debug(`Adding query: ${query.name}, definition: ${JSON.stringify(query)}`)
 		const connectionId = this._connection.connectionId
 		this._queries[query.name] = {
 			cache: [],
 			connectionId: connectionId,
+			isPaged: false,
 			name: query.name,
 			notifyChanges: setItems,
 			query
 		}
 
 		await this._sendMessage(AddQuery, query)
-		this._debug(`Query: ${query.name}, connectionId: ${connectionId} added`)
+		this._logger.debug(`Query: ${query.name}, connectionId: ${connectionId} added`)
 	}
 
 	async dispose(): Promise<void> {
 		try {
-			this._debug('Closing connection')
+			this._logger.debug('Closing connection')
 			await this._connection.stop()
-			this._debug('Connection closed')
+			this._logger.debug('Connection closed')
 		} catch (e) {
-			console.error('Error disconnecting database')
+			this._logger.error('Error disconnecting database')
 		} finally {
 			this.listeners.notify(DISCONNECTED)
 			this._queries = {}
 		}
 	}
 
-	async initialize(options: Partial<DatabaseOptions>): Promise<void> {
-		this._debug('Initializing database')
+	async initialize(options: Partial<ConnectionOptions>): Promise<void> {
+		this._logger.debug('Initializing database')
 
 		if (this.ready) {
-			this._warn('Cannot start twice the database')
+			this._logger.warn('Cannot start twice the database')
 			return
 		}
 
 		options ??= {}
 
-		// Handle 401 responses
 		try {
-			this._debug('Creating connection builder')
-			this._connection = new HubConnectionBuilder()
-				.withAutomaticReconnect(this._retryPolicy)
-				.withUrl(options.url, {
-					withCredentials: false,
-					headers: {Authorization: `Bearer ${options.getToken()}`}
-				})
-				.build()
+			this._logger.debug('Creating connection builder')
+			this._connection = this._connectionProvider.createConnection(options)
 
 			this._connection.onreconnected(() => this._reconnectQueries())
-			this._on(EntityChanged, (queryName, entities) => this._onEntityChange(queryName, entities))
+			this._on(EntityChanged, (queryName, entities) => this._onEntityChanged(queryName, entities))
+			this._on(PageChanged, (queryName, pageInfo) => this._onPageChanged(queryName, pageInfo))
 
-			this._debug('Starting connection')
+			this._logger.debug('Starting connection')
 			await this._connection.start()
 			this.listeners.notify(CONNECTED)
-			this._debug('Connection established')
+			this._logger.debug('Connection established')
 		} catch (e) {
-			console.log('Error connecting to database', e)
+			// TODO Handle 401 responses
+			this._logger.error('Error connecting to database', e)
 		}
 	}
 
 	async modifyQuery(query: Query): Promise<void> {
 		if (isNil(find(this._queries, q => q.name === query.name))) {
-			this._warn(`Query: ${query.name} does not exist.`)
+			this._logger.warn(`Query: ${query.name} does not exist.`)
 			return
 		}
 
-		this._debug(`Modifying query name: ${query.name}, with the new definition: ${JSON.stringify(query)}`)
+		this._logger.debug(`Modifying query name: ${query.name}, with the new definition: ${JSON.stringify(query)}`)
 		await this._sendMessage(ModifyQuery, query)
 		this._queries[query.name].query = query
 	}
@@ -193,8 +220,12 @@ export class DatabaseImpl implements Database {
 		await this._connection.send(RemoveQuery, name)
 	}
 
-	private _debug(message) {
-		console.debug(`${this._logger} - ${message}`)
+	private _checkConnected() {
+		if (this.ready) return
+
+		throw new Error(
+			'Database must be connected to register queries. Please initialize it first, and make sure it\'s so.'
+		)
 	}
 
 	private _deleteById(entities: Entity[], change: Change) {
@@ -228,15 +259,23 @@ export class DatabaseImpl implements Database {
 		this._connection.on(clientMethod, fn)
 	}
 
-	private _onEntityChange(queryName: string, changes: Change[]) {
-		this._debug(`Received entities ${changes?.length ?? 0} change(s) for query: ${queryName}`)
+	private _onEntityChanged(queryName: string, changes: Change[]) {
+		this._logger.debug(`Received entities ${changes?.length ?? 0} change(s) for query: ${queryName}`)
 		const query = find(this._queries, e => e.name === queryName)
 
-		this._debug('Merging entities cache')
+		this._logger.debug('Merging entities cache')
 		query.cache = this._mergeEntities(query.cache, changes)
 
-		this._debug('Notifying listening clients')
+		this._logger.debug('Notifying listening clients')
 		query.notifyChanges(query.cache)
+	}
+
+	private _onPageChanged(queryName: string, pageInfo: PageInfo<any>) {
+		this._logger.debug(`Received entities ${pageInfo.items?.length ?? 0} change(s) for query: ${queryName}`)
+		const query = find(this._queries, e => e.name === queryName)
+
+		this._logger.debug('Notifying listening clients')
+		query.notifyChanges(pageInfo)
 	}
 
 	private async _reconnectQueries() {
@@ -244,19 +283,19 @@ export class DatabaseImpl implements Database {
 
 		this._queries = {}
 
-		this._debug('Reconnecting queries')
+		this._logger.debug('Reconnecting queries')
 		for (let queryName in entries) {
 			const entry = entries[queryName]
 			const query: Query = entry.query
-			await this.addQuery(query, entry.notifyChanges)
+			if (entry.isPaged) {
+				await this.addPageQuery(query, entry.notifyChanges)
+			} else {
+				await this.addQuery(query, entry.notifyChanges)
+			}
 		}
 	}
 
 	private async _sendMessage(message: ServerFunction, ...args: any[]): Promise<void> {
 		await this._connection.send(message, ...args)
-	}
-
-	private _warn(message) {
-		console.warn(`${this._logger} - ${message}`)
 	}
 }
