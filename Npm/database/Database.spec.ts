@@ -21,7 +21,7 @@ import {
 } from './protocol'
 import {CONNECTED, DISCONNECTED} from './DatabaseStatus'
 
-describe('DatabaseImpl tests', () => {
+describe('DatabaseImpl', () => {
 	const AGE = 'Age'
 	const NAME = 'Name'
 	const QUERY_NAME = 'Database: #1'

@@ -5,7 +5,7 @@ import {DatabaseStatusListener} from './DatabaseStatusListener'
 
 /**
  * An object that is associated to each database, to which its clients will register/unregister listeners to get
- * notified about database status changes.
+ * notified about database connection status changes.
  */
 export class DatabaseListeners {
 	private readonly _listeners: { [id: string]: (status: DatabaseStatus) => void } = {}
@@ -14,6 +14,7 @@ export class DatabaseListeners {
 	/**
 	 * Register the given listener if it doesn't exist already. It also invokes it notifying the current state of the
 	 * database.
+	 *
 	 * @param listener {DatabaseStatusListener} The listener to register.
 	 */
 	public register(listener: DatabaseStatusListener) {
@@ -25,6 +26,7 @@ export class DatabaseListeners {
 
 	/**
 	 * Unregister the listener matches the provided id.
+	 *
 	 * @param listenerId {string} The identifier of the listener to unregister.
 	 */
 	public unregister(listenerId: string) {
@@ -34,6 +36,7 @@ export class DatabaseListeners {
 	/**
 	 * DO NOT USE THIS METHOD YOURSELF. It's intended for the associated database to invoke it, letting the listeners
 	 * know about its status.
+	 *
 	 * @param status {DatabaseStatus} Current database status.
 	 */
 	public notify(status: DatabaseStatus) {
