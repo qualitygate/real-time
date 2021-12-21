@@ -184,7 +184,7 @@ describe('DatabaseImpl tests', () => {
 				expect((connection.send as SinonStub).notCalled).toBeTruthy()
 
 				// And a warning notified to the developer
-				let expectedWarning = `Page query: ${query.name} already exists. They can only be added once.`
+				let expectedWarning = `Query: ${query.name} already exists. They can only be added once.`
 				expect((logger.warn as SinonStub).calledOnceWithExactly(expectedWarning)).toBeTruthy()
 			})
 
@@ -320,7 +320,7 @@ describe('DatabaseImpl tests', () => {
 				expect((connection.send as SinonStub).notCalled).toBeTruthy()
 
 				// And a warning to the developer is issued
-				expect((logger.warn as SinonStub).calledOnceWithExactly(`Query: ${newQuery.name} does not exist.`))
+				expect((logger.warn as SinonStub).calledOnceWithExactly(`Query: ${newQuery.name} does not exist.`)).toBeTruthy()
 			})
 
 			it('modifies the query definition on the backend', async () => {
@@ -359,7 +359,7 @@ describe('DatabaseImpl tests', () => {
 				expect((connection.send as SinonStub).notCalled).toBeTruthy()
 
 				// And notify the user about
-				expect((logger.warn as SinonStub).calledOnceWithExactly(`Query: ${query.name} does not exist.`))
+				expect((logger.warn as SinonStub).calledWithExactly(`Query: some-query does not exist.`)).toBeTruthy()
 			})
 
 			it('removes given query if exists', async () => {
@@ -418,7 +418,7 @@ describe('DatabaseImpl tests', () => {
 			expect((connection.stop as SinonStub).calledOnce).toBeTruthy()
 
 			// And notifies listeners about the disconnection
-			expect((listeners.notify as SinonStub).calledOnceWithExactly(DISCONNECTED))
+			expect((listeners.notify as SinonStub).calledWithExactly(DISCONNECTED)).toBeTruthy()
 		})
 
 		it('still notifies the listeners about the disconnection', async () => {
@@ -435,7 +435,7 @@ describe('DatabaseImpl tests', () => {
 			).toBeTruthy()
 
 			// And notifies listeners about the disconnection
-			expect((listeners.notify as SinonStub).calledOnceWithExactly(DISCONNECTED))
+			expect((listeners.notify as SinonStub).calledWithExactly(DISCONNECTED)).toBeTruthy()
 		})
 	})
 })

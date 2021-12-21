@@ -94,7 +94,7 @@ interface QueryEntry {
 	name: string
 	query: Query,
 	connectionId: string
-	notifyChanges: (items: any) => void
+	notifyChanges: (changes: any) => void
 	cache: any
 	isPaged: boolean
 }
@@ -108,9 +108,9 @@ export class DatabaseImpl implements Database {
 	private readonly _name: string
 
 	constructor(name: string,
-	            listeners: DatabaseListeners,
-	            connectionProvider?: ConnectionProvider,
-	            logger?: Logger) {
+							listeners: DatabaseListeners,
+							connectionProvider?: ConnectionProvider,
+							logger?: Logger) {
 		this._logger = logger ?? new LoggerImpl(name)
 		this._connectionProvider = connectionProvider ?? new ConnectionProvider()
 		this._name = name
@@ -129,50 +129,30 @@ export class DatabaseImpl implements Database {
 		return this._connection?.state === HubConnectionState.Connected
 	}
 
-	async addPageQuery<T>(pageQuery: Query, setPageInfo: (pageInfo: PageInfo<T>) => void) {
+	private get connectionId(): string {
+		return this._connection?.connectionId
+	}
+
+	async addPageQuery<T>(query: Query, setPageInfo: (pageInfo: PageInfo<T>) => void) {
 		this.checkConnected()
+		if (this.checkQueryExists(query)) return
 
-		if (!isNil(find(this._queries, q => q.name === pageQuery.name))) {
-			this._logger.warn(`Page query: ${pageQuery.name} already exists. They can only be added once.`)
-			return
-		}
+		this._logger.debug(`Adding page query: ${query.name}, definition: ${JSON.stringify(query)}`)
+		this.registerQuery(query, setPageInfo, true)
 
-		this._logger.debug(`Adding page query: ${pageQuery.name}, definition: ${JSON.stringify(pageQuery)}`)
-		const connectionId = this._connection.connectionId
-		this._queries[pageQuery.name] = {
-			cache: {page: 0, size: 0, items: [], total: 0},
-			connectionId: connectionId,
-			isPaged: true,
-			name: pageQuery.name,
-			notifyChanges: setPageInfo,
-			query: pageQuery
-		}
-
-		await this._sendMessage(AddPageQuery, pageQuery)
-		this._logger.debug(`Page query: ${pageQuery.name}, connectionId: ${connectionId} added`)
+		await this._sendMessage(AddPageQuery, query)
+		this._logger.debug(`Page query: ${query.name}, connectionId: ${this.connectionId} added`)
 	}
 
 	async addQuery<T>(query: Query, setItems: (i: T[]) => void): Promise<void> {
 		this.checkConnected()
-
-		if (!isNil(find(this._queries, q => q.name === query.name))) {
-			this._logger.warn(`Query: ${query.name} already exists. They can only be added once.`)
-			return
-		}
+		if (this.checkQueryExists(query)) return
 
 		this._logger.debug(`Adding query: ${query.name}, definition: ${JSON.stringify(query)}`)
-		const connectionId = this._connection.connectionId
-		this._queries[query.name] = {
-			cache: [],
-			connectionId: connectionId,
-			isPaged: false,
-			name: query.name,
-			notifyChanges: setItems,
-			query
-		}
+		this.registerQuery(query, setItems)
 
 		await this._sendMessage(AddQuery, query)
-		this._logger.debug(`Query: ${query.name}, connectionId: ${connectionId} added`)
+		this._logger.debug(`Query: ${query.name}, connectionId: ${this.connectionId} added`)
 	}
 
 	async dispose(): Promise<void> {
@@ -219,7 +199,7 @@ export class DatabaseImpl implements Database {
 	async modifyQuery(query: Query): Promise<void> {
 		this.checkConnected()
 
-		if (isNil(find(this._queries, q => q.name === query.name))) {
+		if (!this.checkQueryExists(query)) {
 			this._logger.warn(`Query: ${query.name} does not exist.`)
 			return
 		}
@@ -232,7 +212,11 @@ export class DatabaseImpl implements Database {
 	async removeQuery(name: string): Promise<void> {
 		this.checkConnected()
 
-		if (!has(this._queries, name)) return
+		if (!has(this._queries, name)) {
+			this._logger.warn(`Query: ${name} does not exist.`)
+			return
+		}
+
 		delete this._queries[name]
 		await this._connection.send(RemoveQuery, name)
 	}
@@ -243,6 +227,15 @@ export class DatabaseImpl implements Database {
 		throw new Error(
 			'Database must be connected to manage queries. Please initialize it first, and make sure it\'s so.'
 		)
+	}
+
+	private checkQueryExists(query: Query): boolean {
+		if (!isNil(find(this._queries, q => q.name === query.name))) {
+			this._logger.warn(`Query: ${query.name} already exists. They can only be added once.`)
+			return true
+		}
+
+		return false
 	}
 
 	private deleteById(entities: Entity[], change: Change) {
@@ -309,6 +302,17 @@ export class DatabaseImpl implements Database {
 			} else {
 				await this.addQuery(query, entry.notifyChanges)
 			}
+		}
+	}
+
+	private registerQuery(query: Query, notifyChanges: (changes: any) => void, isPaged: boolean = false) {
+		this._queries[query.name] = {
+			cache: isPaged ? {page: 0, size: 0, items: [], total: 0} : [],
+			connectionId: this.connectionId,
+			isPaged,
+			name: query.name,
+			notifyChanges,
+			query
 		}
 	}
 
