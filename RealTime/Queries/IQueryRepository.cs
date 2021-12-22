@@ -19,6 +19,12 @@ namespace QualityGate.RealTime.Queries
         void AddQuery(Query query);
 
         /// <summary>
+        ///     Modifies a query with its new definition.
+        /// </summary>
+        /// <param name="query">New definition of an existing query to modify.</param>
+        void ModifyQuery(Query query);
+
+        /// <summary>
         ///     Removes in a thread-safe fashion all queries associated to the specified connection.
         /// </summary>
         /// <param name="connectionId">Identifier of the connection to remove all of its associated queries.</param>

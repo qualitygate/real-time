@@ -20,7 +20,7 @@ namespace QualityGate.RealTime.Queries
         /// <summary>
         ///     Initializes a new instance of <see cref="QueryRepository"/> given a logger.
         /// </summary>
-        /// <param name="logger">Used to log events occuring in this instance.</param>
+        /// <param name="logger">Used to log events occurring in this instance.</param>
         public QueryRepository(ILogger<QueryRepository> logger)
         {
             _logger = logger;
@@ -34,6 +34,15 @@ namespace QualityGate.RealTime.Queries
             var key = QueryKey.FromQuery(query);
             _queries.TryAdd(key, query);
             _logger.LogDebug($"Query: {key} added");
+        }
+
+        /// <inheritdoc cref="IQueryRepository.ModifyQuery"/>
+        public void ModifyQuery(Query query)
+        {
+            _logger.LogDebug($"Modify Query:\n{query.ToJson()}");
+            var key = QueryKey.FromQuery(query);
+            _queries[key] = query;
+            _logger.LogDebug($"Query: {key} modify");
         }
 
         /// <inheritdoc cref="IQueryRepository.RemoveAllQueries"/>

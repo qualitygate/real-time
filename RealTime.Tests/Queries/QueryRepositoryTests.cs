@@ -42,12 +42,16 @@ namespace QualityGate.RealTime.Tests.Queries
         }
 
         [TestMethod]
-        public void UnTypedGetEnumerator_ReturnsProperEnumerator()
+        public void ModifyQuery_ModifiesTheQuery()
         {
+            // Given
             var query = CreateQuery();
 
-            // When commanded to add the query
-            foreach (var element in (IEnumerable)_subject) Assert.AreSame(query, element);
+            // When
+            _subject.ModifyQuery(query with { Table = "AnotherTable" });
+
+            // Then
+            CollectionAssert.AreEquivalent(new[] { query with { Table = "AnotherTable" } }, _subject.ToArray());
         }
 
         [TestMethod]
@@ -124,6 +128,15 @@ namespace QualityGate.RealTime.Tests.Queries
 
             // Then
             CollectionAssert.AreEquivalent(new[] { query1, query3 }, queries);
+        }
+
+        [TestMethod]
+        public void UnTypedGetEnumerator_ReturnsProperEnumerator()
+        {
+            var query = CreateQuery();
+
+            // When commanded to add the query
+            foreach (var element in (IEnumerable)_subject) Assert.AreSame(query, element);
         }
 
 
