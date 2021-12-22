@@ -1,4 +1,4 @@
-import {HubConnection, HubConnectionState} from '@microsoft/signalr'
+import {HubConnection, HubConnectionBuilder, HubConnectionState} from '@microsoft/signalr'
 import {Entity, PageInfo, Query} from '../contracts'
 import {each, filter, find, has, indexOf, isNil} from 'lodash'
 import {
@@ -17,7 +17,7 @@ import {
 import {DatabaseListeners} from './DatabaseListeners'
 import {ConnectionOptions} from '../connection/ConnectionOptions'
 import {CONNECTED, DISCONNECTED} from './DatabaseStatus'
-import {ConnectionProvider} from '../connection/Connection'
+import {ConnectionProvider} from '../connection/ConnectionProvider'
 import {Logger, LoggerImpl} from '../utils/Logger'
 
 export interface Database {
