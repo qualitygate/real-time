@@ -8,7 +8,7 @@ import {isNil} from 'lodash'
 export class ConnectionProvider {
 	private _retryPolicy: IRetryPolicy = {
 		nextRetryDelayInMilliseconds(): number | null {
-			return 1000
+			return 10000
 		}
 	}
 	private readonly _builder: HubConnectionBuilder

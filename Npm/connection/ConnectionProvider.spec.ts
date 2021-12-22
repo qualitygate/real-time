@@ -40,7 +40,7 @@ describe('ConnectionProvider', () => {
 		let stubUnderAsserts = hubConnectionBuilder.withAutomaticReconnect as SinonStub
 		expect(stubUnderAsserts.calledOnce).toBeTruthy()
 		expect((stubUnderAsserts.firstCall.args[0] as IRetryPolicy).nextRetryDelayInMilliseconds({} as any))
-			.toBe(1000)
+			.toBe(10000)
 
 		stubUnderAsserts = hubConnectionBuilder.withUrl as SinonStub
 		expect(stubUnderAsserts.calledOnceWithExactly(options.url, {
