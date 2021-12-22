@@ -1,8 +1,15 @@
+riderModule.iml
+
+# Visual Studio and resharper
 bin/
 obj/
-/packages/
-riderModule.iml
-/_ReSharper.Caches/
+packages/
+_ReSharper.Caches/
+DesignTimeBuild/
+v17/
+*.sqlite
+project-colors.json
+VSWorkspaceState.json
 
 .idea/
 
