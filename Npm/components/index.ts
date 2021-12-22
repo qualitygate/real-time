@@ -1,1 +1,1 @@
-export * from './DatabaseContext'
+export * from './DatabaseProvider'
