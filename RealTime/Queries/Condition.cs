@@ -19,11 +19,11 @@ namespace QualityGate.RealTime.Queries
         ///     The value that in order for the condition to be true, must be compared to the domain entity's field value
         ///     using the specified logical operator.
         /// </param>
-        public Condition(string field, OperatorBase @operator, object value)
+        public Condition(string field, OperatorBase @operator, object? value = null)
         {
             Field = field;
             Operator = @operator;
-            Value = value.ParseValue();
+            Value = value?.ParseValue();
         }
 
 
@@ -38,8 +38,8 @@ namespace QualityGate.RealTime.Queries
         {
             var condition = new Condition(conditionDto.Field, conditionDto.Operator, conditionDto.Value);
 
-            if (conditionDto.ContinuationOperator is not null)
-                condition.ContinueWith = conditionDto.ContinuationOperator;
+            if (conditionDto.JoinUsing is not null)
+                condition.JoinUsing = conditionDto.JoinUsing;
 
             return condition;
         }
@@ -47,7 +47,7 @@ namespace QualityGate.RealTime.Queries
         /// <summary>
         ///     Gets or sets the logical operator to use in order to chain this condition with the next in the query.
         /// </summary>
-        public ContinuationOperator? ContinueWith { get; set; }
+        public JoinOperator? JoinUsing { get; set; }
 
         /// <summary>
         ///     Gets the name of the domain entity field to involve in the condition evaluation.
@@ -88,10 +88,15 @@ namespace QualityGate.RealTime.Queries
         {
             var builder = new StringBuilder();
 
-            var value = Value is string ? $"'{Value}'" : $"{Value}";
+            var value = Value switch
+            {
+                string stringValue => $"'{stringValue}'",
+                null => "null",
+                _ => $"{Value}"
+            };
             builder.Append($"{Field} {Operator.Sign} {value}");
 
-            if (ContinueWith is not null) builder.Append($" {ContinueWith.Operator}");
+            if (JoinUsing is not null) builder.Append($" {JoinUsing.Operator}");
 
             return builder.ToString();
         }
