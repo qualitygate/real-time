@@ -9,7 +9,6 @@ import {range} from 'lodash'
 import {HubConnection, HubConnectionState} from '@microsoft/signalr'
 import {Logger} from '../utils/Logger'
 import {
-	AddPageQuery,
 	AddQuery,
 	Change,
 	Delete,
@@ -196,7 +195,7 @@ describe('DatabaseImpl', () => {
 				await database.addPageQuery<any>(query, setPageInfo)
 
 				// Then, the notification must have come
-				expect((connection.send as SinonStub).calledOnceWithExactly(AddPageQuery, query)).toBeTruthy()
+				expect((connection.send as SinonStub).calledOnceWithExactly(AddQuery, query)).toBeTruthy()
 			})
 
 			it('receives data change notifications when they arrive', async () => {
@@ -401,7 +400,7 @@ describe('DatabaseImpl', () => {
 			await (database as any).reconnectQueries()
 
 			// Then, the query registration must occur
-			expect((connection.send as SinonStub).calledOnceWithExactly(AddPageQuery, query)).toBeTruthy()
+			expect((connection.send as SinonStub).calledOnceWithExactly(AddQuery, query)).toBeTruthy()
 		})
 	})
 

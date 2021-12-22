@@ -1,8 +1,7 @@
-import {HubConnection, HubConnectionBuilder, HubConnectionState} from '@microsoft/signalr'
+import {HubConnection, HubConnectionState} from '@microsoft/signalr'
 import {Entity, PageInfo, Query} from '../contracts'
 import {each, filter, find, has, indexOf, isNil} from 'lodash'
 import {
-	AddPageQuery,
 	AddQuery,
 	Change,
 	ClientFunction,
@@ -140,7 +139,7 @@ export class DatabaseImpl implements Database {
 		this._logger.debug(`Adding page query: ${query.name}, definition: ${JSON.stringify(query)}`)
 		this.registerQuery(query, setPageInfo, true)
 
-		await this._sendMessage(AddPageQuery, query)
+		await this._sendMessage(AddQuery, query)
 		this._logger.debug(`Page query: ${query.name}, connectionId: ${this.connectionId} added`)
 	}
 
