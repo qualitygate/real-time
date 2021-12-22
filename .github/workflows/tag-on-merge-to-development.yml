@@ -3,7 +3,7 @@ name: Tag on pull request
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   tagging:

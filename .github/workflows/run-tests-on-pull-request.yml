@@ -3,7 +3,7 @@ name: Run tests on Pull Request
 on: [pull_request]
 
 jobs:
-  unit-tests:
+  backend-unit-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Clone project
@@ -15,3 +15,12 @@ jobs:
       - name: Run all tests
         run: |
           dotnet test RealTime.Tests
+  npm-package-unit-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone project
+        uses: actions/checkout@v1
+      - name: Install dependencies
+        run: "cd Npm && yarn install"
+      - name: Run all tests
+        run: jest
