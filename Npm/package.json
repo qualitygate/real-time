@@ -1,7 +1,7 @@
 {
   "name": "@qualitygate/real-time",
-  "version": "1.1.8",
-  "description": "A package to make it simple receive RavenDB database entities changes notification through SignalR HUB.",
+  "version": "1.1.9",
+  "description": "A package to make it simple receive database entities changes notification through SignalR HUB.",
   "repository": "https://github.com/arielf-camacho/real-time-web",
   "author": "Ariel Felipe Camacho Díaz",
   "license": "MIT",
