@@ -1,6 +1,6 @@
 import {ConnectionOptions} from './ConnectionOptions'
 import {ConnectionProvider} from './ConnectionProvider'
-import {SinonStub, stub} from 'sinon'
+import {SinonStub, stub, restore} from 'sinon'
 import {HubConnection, HubConnectionBuilder, IRetryPolicy} from '@microsoft/signalr'
 
 describe('ConnectionProvider', () => {
@@ -29,7 +29,13 @@ describe('ConnectionProvider', () => {
 		withUrl.returns({build})
 		build.returns(hubConnection)
 
-		connectionProvider = new ConnectionProvider(hubConnectionBuilder as any)
+		connectionProvider = new ConnectionProvider()
+		const getHubConnectionBuilderStub = stub(connectionProvider, 'getHubConnectionBuilder' as any)
+		getHubConnectionBuilderStub.returns(hubConnectionBuilder as any)
+	})
+
+	afterEach(() => {
+		restore()
 	})
 
 	it('constructs correctly the database with the specified options', () => {

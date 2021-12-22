@@ -11,16 +11,6 @@ export class ConnectionProvider {
 			return 10000
 		}
 	}
-	private readonly _builder: HubConnectionBuilder
-
-	/**
-	 * Initializes a new instance of {@link ConnectionProvider} given an optional connection builder.
-	 *
-	 * @param builder {HubConnectionBuilder}: Builder use to build the database connection.
-	 */
-	constructor(builder?: HubConnectionBuilder) {
-		this._builder = builder ?? new HubConnectionBuilder()
-	}
 
 	/**
 	 * Creates a new database connection with given options. If the getToken function in the options is specified,
@@ -34,9 +24,14 @@ export class ConnectionProvider {
 	createConnection(options: Partial<ConnectionOptions>): HubConnection {
 		const headers = isNil(options.getToken) ? {} : {Authorization: `Bearer ${options.getToken()}`}
 
-		return this._builder
+		return this.getHubConnectionBuilder()
 			.withAutomaticReconnect(this._retryPolicy)
 			.withUrl(options.url, {withCredentials: false, headers})
 			.build()
+	}
+
+	// noinspection JSMethodCanBeStatic
+	private getHubConnectionBuilder(): HubConnectionBuilder {
+		return new HubConnectionBuilder()
 	}
 }
