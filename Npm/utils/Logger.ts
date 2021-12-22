@@ -30,14 +30,14 @@ export class LoggerImpl implements Logger {
 	}
 
 	error(...data: any[]): void {
-		console.error(this.loggerInfo, data)
+		console.error(this.loggerInfo, ...data)
 	}
 
 	info(...data: any[]): void {
-		console.info(this.loggerInfo, data)
+		console.info(this.loggerInfo, ...data)
 	}
 
 	warn(...data: any[]): void {
-		console.warn(this.loggerInfo, data)
+		console.warn(this.loggerInfo, ...data)
 	}
 }
