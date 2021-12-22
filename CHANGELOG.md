@@ -1,4 +1,5 @@
 # CHANGELOG.md
+
 ## 1.1.2 (unreleased)
 ### Added
 - Add well formed README.md
