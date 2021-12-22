@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using QualityGate.RealTime.Changes;
 
 namespace QualityGate.RealTime.Notifications
 {
@@ -29,7 +28,7 @@ namespace QualityGate.RealTime.Notifications
             string method,
             string connectionId,
             string queryName,
-            params ExternalChange[] changes)
+            params object[] changes)
         {
             var client = _hubContext.Clients.Clients(connectionId);
 

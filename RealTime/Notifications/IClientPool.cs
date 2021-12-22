@@ -1,11 +1,10 @@
 using System.Threading.Tasks;
-using QualityGate.RealTime.Changes;
 
 namespace QualityGate.RealTime.Notifications
 {
     /// <summary>
     ///     Describes the contract of the facade that allows to invoke methods on the connected SignalR clients
-    ///     (browser webapps). Implementors of this interface should be used to notify entities changes in a RavenDB
+    ///     (browser web-apps). Implementors of this interface should be used to notify entities changes in a RavenDB
     ///     database.
     /// </summary>
     public interface IClientPool
@@ -19,9 +18,7 @@ namespace QualityGate.RealTime.Notifications
         /// </param>
         /// <param name="queryName">Name of the query where entities that satisfy it have changed.</param>
         /// <param name="changes">Set of changes, expressing which entity experienced what change</param>
-        /// <returns>
-        ///     A <see cref="Task"/> that asynchronously performs the invocation.
-        /// </returns>
-        Task InvokeMethodAsync(string method, string connectionId, string queryName, params ExternalChange[] changes);
+        /// <returns>A <see cref="Task"/> that asynchronously performs the invocation.</returns>
+        Task InvokeMethodAsync(string method, string connectionId, string queryName, params object[] changes);
     }
 }
