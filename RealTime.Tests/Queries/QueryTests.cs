@@ -32,7 +32,7 @@ namespace QualityGate.RealTime.Tests.Queries
                 Conditions = new[]
                 {
                     new Condition(nameof(TestEntity.Id), OperatorBase.Eq, entity.Id!)
-                        { ContinueWith = ContinuationOperator.And },
+                        { JoinUsing = JoinOperator.And },
                     new Condition(nameof(TestEntity.Name), OperatorBase.Eq, entity.Name)
                 }
             };
@@ -55,7 +55,7 @@ namespace QualityGate.RealTime.Tests.Queries
                 Conditions = new[]
                 {
                     new Condition(nameof(TestEntity.Id), OperatorBase.Eq, -1)
-                        { ContinueWith = ContinuationOperator.And },
+                        { JoinUsing = JoinOperator.And },
                     new Condition(nameof(TestEntity.Name), OperatorBase.Eq, entity.Name)
                 }
             };
@@ -101,12 +101,12 @@ namespace QualityGate.RealTime.Tests.Queries
         [TestMethod]
         public void ImplicitStringConverter_GivenFullyDefinedQuery_ReturnsProperStringRepresentation()
         {
-            var query = _subject with
+            var query = new PaginatedQuery(ConnectionId, _subject.Name, _subject.Table)
             {
                 Fields = new[] { "Name", "Id" },
                 Conditions = new[]
                 {
-                    new Condition("Name", OperatorBase.Eq, "John") { ContinueWith = ContinuationOperator.And },
+                    new Condition("Name", OperatorBase.Eq, "John") { JoinUsing = JoinOperator.And },
                     new Condition("Id", OperatorBase.Eq, 1)
                 },
                 OrderBy = new OrderBy
@@ -114,8 +114,8 @@ namespace QualityGate.RealTime.Tests.Queries
                     Ascending = false,
                     Fields = new[] { "Name", "Id" }
                 },
-                Skip = 30,
-                Take = 10
+                Size = 30,
+                Page = 10
             };
 
             // When
