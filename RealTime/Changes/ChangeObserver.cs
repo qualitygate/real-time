@@ -59,7 +59,7 @@ namespace QualityGate.RealTime.Changes
         public async void OnNext(DocumentChange change)
         {
             _logger.LogDebug($"Table: {change.CollectionName}, Type: {change.Type}, Id: {change.Id}");
-            await _notifier.Notify(change);
+            await _notifier.NotifyEntityChanged(change);
         }
     }
 }

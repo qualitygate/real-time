@@ -24,11 +24,7 @@ namespace QualityGate.RealTime.Notifications
 
 
         /// <inheritdoc cref="IClientPool.InvokeMethodAsync"/>
-        public Task InvokeMethodAsync(
-            string method,
-            string connectionId,
-            string queryName,
-            params object[] changes)
+        public Task InvokeMethodAsync(string method, string connectionId, string queryName, object changes)
         {
             var client = _hubContext.Clients.Clients(connectionId);
 

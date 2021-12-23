@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -32,7 +31,7 @@ namespace QualityGate.RealTime.Notifications
         /// <param name="queryRepository">
         ///     Repository where all the client browsers registered queries are stored.
         /// </param>
-        /// <param name="logger">Used to log events occuring in this instance.</param>
+        /// <param name="logger">Used to log events occurring in this instance.</param>
         /// <param name="entityRepository">
         ///     Repository to easily fetch changed entities from RavenDB.
         /// </param>
@@ -49,19 +48,26 @@ namespace QualityGate.RealTime.Notifications
         }
 
 
-        /// <inheritdoc cref="IChangeNotifier.NotifyFirstTime"/>
-        public async Task NotifyFirstTime(Query query)
+        /// <inheritdoc cref="IChangeNotifier.NotifyFullResults"/>
+        public async Task NotifyFullResults(Query query)
         {
-            _logger.LogDebug($"Searching entities to satisfy the query: {query.Name} for client: {query.ConnectionId}");
-            var entities = await _entityRepository.Find<object>(query);
+            if (query is PaginatedQuery paginatedQuery)
+            {
+                await NotifyPageQueryChanged(paginatedQuery);
+            }
+            else
+            {
+                _logger.LogDebug($"Searching entities to satisfy the query: {query.Name} for client: {query.ConnectionId}");
+                var entities = await _entityRepository.FindAllAsync<object>(query);
 
-            _logger.LogDebug($"Found {entities.Length} entities satisfying the query, notifying connected clients");
-            var changes = entities.Select(e => new Change(e, query.Table, ChangeType.Upsert));
-            await Notify(changes, query);
+                _logger.LogDebug($"Found {entities.Length} entities satisfying the query, notifying connected clients");
+                var changes = entities.Select(e => new Change(e, query.Table, ChangeType.Upsert)).ToArray();
+                await Notify(changes, query);
+            }
         }
 
-        /// <inheritdoc cref="IChangeNotifier.Notify"/>
-        public async Task Notify(DocumentChange documentChange)
+        /// <inheritdoc cref="IChangeNotifier.NotifyEntityChanged"/>
+        public async Task NotifyEntityChanged(DocumentChange documentChange)
         {
             if (documentChange.CollectionName.StartsWith("@hilo")) return;
 
@@ -69,9 +75,7 @@ namespace QualityGate.RealTime.Notifications
 
             _logger.LogDebug("Loading changed entity from database");
             Query[] matchingQueriesByConditions = await NotifyMatchingQueriesByConditions(change);
-
-            Query[] queriesMatchingEntityTableButNotEntity =
-                await NotifyQueriesMatchingTableButNotMatchingEntityAnymore(change, matchingQueriesByConditions);
+            Query[] queriesMatchingEntityTableButNotEntity = await NotifyQueriesMatchingTableButNotMatchingEntityAnymore(change, matchingQueriesByConditions);
 
             var affectedQueries = matchingQueriesByConditions.Length + queriesMatchingEntityTableButNotEntity.Length;
             _logger.LogDebug($"Affected {affectedQueries} queries. Notifying impacted clients");
@@ -93,7 +97,7 @@ namespace QualityGate.RealTime.Notifications
             }
             else
             {
-                var entity = await _entityRepository.Find<object>(documentChange.Id);
+                var entity = await _entityRepository.FindAsync<object>(documentChange.Id);
                 var changeType = documentChange.Type switch
                 {
                     DocumentChangeTypes.Put => ChangeType.Upsert,
@@ -107,16 +111,41 @@ namespace QualityGate.RealTime.Notifications
 
         private Task Notify(Change change, params Query[] queries) => Notify(new[] { change }, queries);
 
-        private async Task Notify(IEnumerable<Change> changes, params Query[] queries)
+        private async Task Notify(Change[] changes, params Query[] queries)
         {
-            var externalChanges = changes.Select(ExternalChange.FromChange).ToArray();
+            foreach (var query in queries)
+            {
+                if (query is PaginatedQuery pagedQuery)
+                {
+                    await NotifyPageQueryChanged(pagedQuery);
+                }
+                else
+                {
+                    var externalChanges = changes.Select(ExternalChange.FromChange);
 
-            foreach (var (connectionId, name, _) in queries)
-                await _clients.InvokeMethodAsync(ClientMethods.EntityChanged, connectionId, name, externalChanges);
+                    await _clients.InvokeMethodAsync(
+                        ClientMethods.EntityChanged,
+                        query.ConnectionId,
+                        query.Name,
+                        externalChanges.ToArray());
+                }
+            }
+        }
+
+        private async Task NotifyPageQueryChanged(PaginatedQuery query)
+        {
+            var pageInfo = await _entityRepository.FindPageAsync<object>(query);
+
+            await _clients.InvokeMethodAsync(
+                ClientMethods.PageChanged,
+                query.ConnectionId,
+                query.Name,
+                pageInfo);
         }
 
         private async Task<Query[]> NotifyQueriesMatchingTableButNotMatchingEntityAnymore(
-            Change change, Query[] matchingQueriesByConditions)
+            Change change,
+            Query[] matchingQueriesByConditions)
         {
             Query[] queriesMatchingTableButNotChange = _queryRepository
                 .SelectMatchingTable(change)
@@ -134,8 +163,7 @@ namespace QualityGate.RealTime.Notifications
         {
             var entity = change.Entity;
 
-            _logger.LogDebug($"Entity of type: {entity.GetType().Name}, " +
-                             $"suffered a {change.Type.ToString()} operation");
+            _logger.LogDebug($"Entity of type: {entity.GetType().Name}, suffered a {change.Type} operation");
 
             Query[] matchingQueriesByConditions = _queryRepository.SelectMatching(change);
             await Notify(change, matchingQueriesByConditions);

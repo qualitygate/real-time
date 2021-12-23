@@ -11,10 +11,10 @@ namespace QualityGate.RealTime.Tests.Changes
     [TestClass]
     public class ChangeObserverTests
     {
-        private ILogger<ChangeObserver> _logger;
-        private IChangeNotifier _changeNotifier;
+        private ILogger<ChangeObserver>? _logger;
+        private IChangeNotifier? _changeNotifier;
 
-        private ChangeObserver _subject;
+        private ChangeObserver? _subject;
 
 
         [TestInitialize]
@@ -38,13 +38,13 @@ namespace QualityGate.RealTime.Tests.Changes
                 CollectionName = "CollectionA"
             };
 
-            _changeNotifier.Notify(change).Returns(Task.CompletedTask);
+            _changeNotifier!.NotifyEntityChanged(change).Returns(Task.CompletedTask);
 
             // When
-            _subject.OnNext(change);
+            _subject!.OnNext(change);
 
             // Then
-            _changeNotifier.Received().Notify(change);
+            _changeNotifier.Received().NotifyEntityChanged(change);
         }
     }
 }
