@@ -289,3 +289,7 @@ export function RootComponent() {
 
 MIT License. Anyone can fork, use or contribute to this project at will. All the contributions are pretty much
 appreciated.
+
+## Changelog
+
+Latest changes are tracked at the [CHANGELOG.md](./CHANGELOG.md)
