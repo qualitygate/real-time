@@ -1,6 +1,6 @@
 # CHANGELOG.md
 
-## 1.1.1
+## 1.1.2
 ### Added
 - Add to query conditions the possibility to include: `<>` and `or` operators.
 
