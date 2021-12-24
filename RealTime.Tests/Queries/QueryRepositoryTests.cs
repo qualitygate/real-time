@@ -15,9 +15,9 @@ namespace QualityGate.RealTime.Tests.Queries
         private const string ConnectionId = "1";
         private const string TableName = "entities";
 
-        private ILogger<QueryRepository> _logger;
+        private ILogger<QueryRepository>? _logger;
 
-        private QueryRepository _subject;
+        private QueryRepository? _subject;
 
 
         [TestInitialize]
@@ -35,7 +35,7 @@ namespace QualityGate.RealTime.Tests.Queries
             var query = CreateQuery();
 
             // When commanded to add the query
-            _subject.AddQuery(query);
+            _subject!.AddQuery(query);
 
             // Then
             CollectionAssert.AreEquivalent(new[] { query }, _subject.ToArray());
@@ -48,7 +48,7 @@ namespace QualityGate.RealTime.Tests.Queries
             var query = CreateQuery();
 
             // When
-            _subject.ModifyQuery(query with { Table = "AnotherTable" });
+            _subject!.ModifyQuery(query with { Table = "AnotherTable" });
 
             // Then
             CollectionAssert.AreEquivalent(new[] { query with { Table = "AnotherTable" } }, _subject.ToArray());
@@ -58,7 +58,7 @@ namespace QualityGate.RealTime.Tests.Queries
         public void RemoveAllQueries_GivenConnectionId_RemovesQueriesAssociatedToGivenConnectionId()
         {
             var query = CreateQuery();
-            _subject.AddQuery(query);
+            _subject!.AddQuery(query);
             _subject.AddQuery(query);
 
             // When commanded to add the query
@@ -74,7 +74,7 @@ namespace QualityGate.RealTime.Tests.Queries
             const string targetConnectionId = "2";
             var query1 = CreateQuery();
             var query2 = CreateQuery(targetConnectionId);
-            _subject.AddQuery(query1);
+            _subject!.AddQuery(query1);
             _subject.AddQuery(query2);
 
             // When commanded to add the query
@@ -94,7 +94,7 @@ namespace QualityGate.RealTime.Tests.Queries
 
             var query1 = CreateQuery();
             var query2 = new Query(ConnectionId, "query#2", otherEntitiesTable);
-            _subject.AddQuery(query1);
+            _subject!.AddQuery(query1);
             _subject.AddQuery(query2);
 
             // When commanded to add the query
@@ -117,9 +117,9 @@ namespace QualityGate.RealTime.Tests.Queries
             var query3 = query1 with
             {
                 Name = "query#3",
-                Conditions = new[] { new Condition(nameof(IEntity.Id), OperatorBase.Eq, 2) }
+                Conditions = new[] { new Condition(nameof(IEntity.Id), OperatorBase.Equal, 2) }
             };
-            _subject.AddQuery(query1);
+            _subject!.AddQuery(query1);
             _subject.AddQuery(query2);
             _subject.AddQuery(query3);
 
@@ -136,14 +136,14 @@ namespace QualityGate.RealTime.Tests.Queries
             var query = CreateQuery();
 
             // When commanded to add the query
-            foreach (var element in (IEnumerable)_subject) Assert.AreSame(query, element);
+            foreach (var element in (IEnumerable)_subject!) Assert.AreSame(query, element);
         }
 
 
         private static Query CreateQuery(string connectionId = ConnectionId) =>
             new(connectionId, "query#1", TableName)
             {
-                Conditions = new[] { new Condition(nameof(IEntity.Id), OperatorBase.Eq, 1) }
+                Conditions = new[] { new Condition(nameof(IEntity.Id), OperatorBase.Equal, 1) }
             };
     }
 }

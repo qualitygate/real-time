@@ -11,7 +11,7 @@ namespace QualityGate.RealTime.Tests.Queries
         private const string ConnectionId = "1";
         private const string TableName = "entities";
 
-        private Query _subject;
+        private Query? _subject;
 
 
         [TestInitialize]
@@ -27,13 +27,13 @@ namespace QualityGate.RealTime.Tests.Queries
             // Given
             var entity = Stubs.NewEntity;
             var change = new Change(entity, TableName, ChangeType.Upsert);
-            _subject = _subject with
+            _subject = _subject! with
             {
                 Conditions = new[]
                 {
-                    new Condition(nameof(TestEntity.Id), OperatorBase.Eq, entity.Id!)
+                    new Condition(nameof(TestEntity.Id), OperatorBase.Equal, entity.Id)
                         { JoinUsing = JoinOperator.And },
-                    new Condition(nameof(TestEntity.Name), OperatorBase.Eq, entity.Name)
+                    new Condition(nameof(TestEntity.Name), OperatorBase.Equal, entity.Name)
                 }
             };
 
@@ -50,13 +50,13 @@ namespace QualityGate.RealTime.Tests.Queries
             // Given
             var entity = Stubs.NewEntity;
             var change = new Change(entity, TableName, ChangeType.Upsert);
-            _subject = _subject with
+            _subject = _subject! with
             {
                 Conditions = new[]
                 {
-                    new Condition(nameof(TestEntity.Id), OperatorBase.Eq, -1)
+                    new Condition(nameof(TestEntity.Id), OperatorBase.Equal, -1)
                         { JoinUsing = JoinOperator.And },
-                    new Condition(nameof(TestEntity.Name), OperatorBase.Eq, entity.Name)
+                    new Condition(nameof(TestEntity.Name), OperatorBase.Equal, entity.Name)
                 }
             };
 
@@ -75,7 +75,7 @@ namespace QualityGate.RealTime.Tests.Queries
             var change = new Change(entity, TableName, ChangeType.Upsert);
 
             // When
-            var result = _subject.MatchesChange(change);
+            var result = _subject!.MatchesChange(change);
 
             // Then
             Assert.IsTrue(result);
@@ -87,7 +87,7 @@ namespace QualityGate.RealTime.Tests.Queries
             // Given
             var entity = Stubs.NewEntity;
             var change = new Change(entity, TableName, ChangeType.Upsert);
-            _subject = _subject with { Conditions = Array.Empty<Condition>() };
+            _subject = _subject! with { Conditions = Array.Empty<Condition>() };
 
             // When
             var result = _subject.MatchesChange(change);
@@ -101,13 +101,14 @@ namespace QualityGate.RealTime.Tests.Queries
         [TestMethod]
         public void ImplicitStringConverter_GivenFullyDefinedQuery_ReturnsProperStringRepresentation()
         {
-            var query = new PaginatedQuery(ConnectionId, _subject.Name, _subject.Table)
+            var query = new PaginatedQuery(ConnectionId, _subject!.Name, _subject.Table)
             {
                 Fields = new[] { "Name", "Id" },
                 Conditions = new[]
                 {
-                    new Condition("Name", OperatorBase.Eq, "John") { JoinUsing = JoinOperator.And },
-                    new Condition("Id", OperatorBase.Eq, 1)
+                    new Condition("Name", OperatorBase.Equal, "John") { JoinUsing = JoinOperator.And },
+                    new Condition("Id", OperatorBase.Equal, 1) { JoinUsing = JoinOperator.Or },
+                    new Condition("Id", OperatorBase.Equal, 2)
                 },
                 OrderBy = new OrderBy
                 {
@@ -123,7 +124,7 @@ namespace QualityGate.RealTime.Tests.Queries
 
             // Then
             Assert.AreEqual(
-                "from entities where Name = 'John' and Id = 1 order by Name, Id desc select Name, Id",
+                "from entities where Name = 'John' and Id = 1 or Id = 2 order by Name, Id desc select Name, Id",
                 queryString);
         }
 

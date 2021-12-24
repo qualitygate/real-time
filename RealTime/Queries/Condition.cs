@@ -77,7 +77,7 @@ namespace QualityGate.RealTime.Queries
             var propertyInfo = change.Entity.GetType().GetProperty(Field);
             var propertyValue = propertyInfo?.GetValue(change.Entity);
 
-            return OperatorBase.Eq.Evaluate(Value, propertyValue);
+            return OperatorBase.Equal.Evaluate(Value, propertyValue);
         }
 
         /// <summary>

@@ -38,8 +38,8 @@ namespace QualityGate.RealTime.Tests
                 Fields = new[] { "Name", "Age" },
                 Conditions = new[]
                 {
-                    new Condition("Name", OperatorBase.Eq, "John") { JoinUsing = JoinOperator.And },
-                    new Condition("Age", OperatorBase.Eq, 30)
+                    new Condition("Name", OperatorBase.Equal, "John") { JoinUsing = JoinOperator.And },
+                    new Condition("Age", OperatorBase.Equal, 30)
                 },
                 OrderBy = queryDto.OrderBy
             };
@@ -98,8 +98,8 @@ namespace QualityGate.RealTime.Tests
                 Fields = new[] { "Name", "Age" },
                 Conditions = new[]
                 {
-                    new Condition("Name", OperatorBase.Eq, "John") { JoinUsing = JoinOperator.And },
-                    new Condition("Age", OperatorBase.Eq, 30)
+                    new Condition("Name", OperatorBase.Equal, "John") { JoinUsing = JoinOperator.And },
+                    new Condition("Age", OperatorBase.Equal, 30)
                 },
                 OrderBy = queryDto.OrderBy
             };

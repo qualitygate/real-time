@@ -174,7 +174,7 @@ namespace QualityGate.RealTime.Tests.Notification
             // Given some entities and a registered query
             (IEntity[] entities, Query query) = PrepareScenario();
 
-            query = query with { Conditions = new[] { new Condition(nameof(IEntity.Id), OperatorBase.Eq, 300) } };
+            query = query with { Conditions = new[] { new Condition(nameof(IEntity.Id), OperatorBase.Equal, 300) } };
             var changedEntity = entities.First();
             var documentChange = new DocumentChange
             {

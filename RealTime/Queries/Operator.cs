@@ -10,7 +10,8 @@ namespace QualityGate.RealTime.Queries
         /// <summary>
         ///     Equality logical operator.
         /// </summary>
-        public static readonly OperatorBase Eq = new EqualOperator();
+        public static readonly OperatorBase Equal = new EqualOperator();
+        public static readonly OperatorBase NotEqual = new NotEqualOperator();
 
 
         /// <summary>
@@ -24,6 +25,7 @@ namespace QualityGate.RealTime.Queries
         public static implicit operator OperatorBase(string @operator) => @operator switch
         {
             "=" => new EqualOperator(),
+            "<>" => new NotEqualOperator(),
             _ => throw new NotImplementedException()
         };
 
