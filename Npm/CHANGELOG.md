@@ -1,5 +1,9 @@
 # CHANGELOG.md
 
+## 1.1.1
+### Added
+- Add to query conditions the possibility to include: `<>` and `or` operators.
+
 ## 1.1.0
 ### Added
 - Add well-formed README.md
