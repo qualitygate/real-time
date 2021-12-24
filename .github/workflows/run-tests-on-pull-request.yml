@@ -20,6 +20,6 @@ jobs:
       - name: Clone project
         uses: actions/checkout@v1
       - name: Install dependencies
-        run: "cd Npm && yarn install"
+        run: cd Npm && yarn install
       - name: Run all tests
-        run: jest
+        run: cd Npm && ./node_modules/.bin/jest
