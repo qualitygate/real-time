@@ -28,7 +28,7 @@ namespace QualityGate.RealTime.Queries
         public string[]? Fields { get; [ExcludeFromCodeCoverage] init; }
 
         /// <inheritdoc cref="QueryDto.OrderBy"/>
-        public OrderBy? OrderBy { get; set; }
+        public OrderBy? OrderBy { get; init; }
 
 
         /// <summary>

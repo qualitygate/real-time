@@ -6,6 +6,7 @@ namespace QualityGate.RealTime.Tests.Domain
     {
         public string? Id { get; set; }
 
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public int Age { get; set; }
     }
 }

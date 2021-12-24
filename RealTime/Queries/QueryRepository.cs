@@ -97,15 +97,9 @@ namespace QualityGate.RealTime.Queries
         #endregion
 
 
-        private record QueryKey
+        private record QueryKey(string Name, string ConnectionId)
         {
-            // ReSharper disable once MemberCanBePrivate.Local
-            public string Name { get; set; } = "?";
-
-            public string ConnectionId { get; set; } = "?";
-
-            public static QueryKey FromQuery(Query query) =>
-                new() { ConnectionId = query.ConnectionId, Name = query.Name };
+            public static QueryKey FromQuery(Query query) => new(query.Name, query.ConnectionId);
 
             public override string ToString()
             {

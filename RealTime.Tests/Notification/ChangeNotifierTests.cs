@@ -172,7 +172,7 @@ namespace QualityGate.RealTime.Tests.Notification
             NotifyEntityChanged_GivenEntityChangeAndEntityNoLongerBelongsToAQueryMatchingEntityTable_NotifiesSuchQueriesAsWellPassingADeletionChange()
         {
             // Given some entities and a registered query
-            (IEntity[] entities, Query query) = PrepareScenario();
+            var (entities, query) = PrepareScenario();
 
             query = query with { Conditions = new[] { new Condition(nameof(IEntity.Id), OperatorBase.Equal, 300) } };
             var changedEntity = entities.First();
@@ -210,7 +210,7 @@ namespace QualityGate.RealTime.Tests.Notification
                     ClientConnectionId,
                     query.Name,
                     Arg.Is<object[]>(changes =>
-                        ((ExternalChange)changes[0]) == new ExternalChange(entities.First(), ChangeType.Upsert)));
+                        (ExternalChange)changes[0] == new ExternalChange(entities.First(), ChangeType.Upsert)));
 
             // But, a notification to the listening clients (the ones that registered the query) should arrive,
             // "simulating" the changed entity was deleted, so that listening clients can remove the change entity from
@@ -250,7 +250,7 @@ namespace QualityGate.RealTime.Tests.Notification
                     ClientConnectionId,
                     name,
                     Arg.Is<object[]>(changes =>
-                        ((ExternalChange)changes[0]) == new ExternalChange(new DeletedEntity(deletedEntity.Id!), ChangeType.Delete)
+                        (ExternalChange)changes[0] == new ExternalChange(new DeletedEntity(deletedEntity.Id!), ChangeType.Delete)
                     )
                 );
         }

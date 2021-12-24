@@ -27,7 +27,7 @@ export interface Database {
 
 	/**
 	 * Register the given paginated query for real-time synchronization. A paginated query is a one that is meant to
-	 * retrived a portion of the whole universe of entities of T type.
+	 * retrieve a portion of the whole universe of entities of T type.
 	 *
 	 * @param pageQuery: Definition of a paginated query, which represents the criteria to select a portion of entities of
 	 * a certain type at which the current app is interested on. It also slices the results by using the

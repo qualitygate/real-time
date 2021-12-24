@@ -124,7 +124,7 @@ namespace QualityGate.RealTime.Tests.Queries
             _subject.AddQuery(query3);
 
             // When commanded to add the query
-            Query[] queries = _subject.SelectMatchingTable(change);
+            var queries = _subject.SelectMatchingTable(change);
 
             // Then
             CollectionAssert.AreEquivalent(new[] { query1, query3 }, queries);

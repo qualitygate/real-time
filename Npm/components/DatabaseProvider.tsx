@@ -14,6 +14,7 @@ export interface DatabaseProviderProps {
 	children?: any
 }
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Gets a reference to the nearest <DatabaseProvider/> element provided database instance.
  * @return {Database} instance provided by the nearest <DatabaseProvider/> up in the tree of the caller component.
@@ -29,6 +30,7 @@ export function useDatabase(databaseName: string): Database {
 	return database
 }
 
+// noinspection JSUnusedGlobalSymbols
 /**
  * Include this component on the component tree where children will require and instance of a database.
  */

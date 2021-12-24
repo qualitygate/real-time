@@ -14,11 +14,11 @@ namespace QualityGate.RealTime.Tests.Notification
     {
         private static readonly string ConnectionId = Guid.NewGuid().ToString();
 
-        private IClientProxy _client;
-        private IHubContext<DatabaseApiHub> _hubContext;
-        private IHubClients _hubClients;
+        private IClientProxy? _client;
+        private IHubContext<DatabaseApiHub>? _hubContext;
+        private IHubClients? _hubClients;
 
-        private ClientPool _subject;
+        private ClientPool? _subject;
 
 
         [TestInitialize]
@@ -48,10 +48,10 @@ namespace QualityGate.RealTime.Tests.Notification
             };
 
             // When commanded to invoke the method
-            _subject.InvokeMethodAsync(methodName, ConnectionId, queryName, changes).WaitFor();
+            _subject!.InvokeMethodAsync(methodName, ConnectionId, queryName, changes).WaitFor();
 
             // Then
-            _client
+            _client!
                 .Received()
                 .SendCoreAsync(
                     methodName,

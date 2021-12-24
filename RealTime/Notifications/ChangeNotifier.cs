@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -74,8 +75,8 @@ namespace QualityGate.RealTime.Notifications
             var change = await GetChangeType(documentChange);
 
             _logger.LogDebug("Loading changed entity from database");
-            Query[] matchingQueriesByConditions = await NotifyMatchingQueriesByConditions(change);
-            Query[] queriesMatchingEntityTableButNotEntity = await NotifyQueriesMatchingTableButNotMatchingEntityAnymore(change, matchingQueriesByConditions);
+            var matchingQueriesByConditions = await NotifyMatchingQueriesByConditions(change);
+            var queriesMatchingEntityTableButNotEntity = await NotifyQueriesMatchingTableButNotMatchingEntityAnymore(change, matchingQueriesByConditions);
 
             var affectedQueries = matchingQueriesByConditions.Length + queriesMatchingEntityTableButNotEntity.Length;
             _logger.LogDebug($"Affected {affectedQueries} queries. Notifying impacted clients");
@@ -145,9 +146,9 @@ namespace QualityGate.RealTime.Notifications
 
         private async Task<Query[]> NotifyQueriesMatchingTableButNotMatchingEntityAnymore(
             Change change,
-            Query[] matchingQueriesByConditions)
+            IEnumerable<Query> matchingQueriesByConditions)
         {
-            Query[] queriesMatchingTableButNotChange = _queryRepository
+            var queriesMatchingTableButNotChange = _queryRepository
                 .SelectMatchingTable(change)
                 .Except(matchingQueriesByConditions)
                 .Where(q => !q.MatchesChange(change))
@@ -165,7 +166,7 @@ namespace QualityGate.RealTime.Notifications
 
             _logger.LogDebug($"Entity of type: {entity.GetType().Name}, suffered a {change.Type} operation");
 
-            Query[] matchingQueriesByConditions = _queryRepository.SelectMatching(change);
+            var matchingQueriesByConditions = _queryRepository.SelectMatching(change);
             await Notify(change, matchingQueriesByConditions);
 
             return matchingQueriesByConditions;

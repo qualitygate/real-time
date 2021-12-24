@@ -11,11 +11,11 @@ namespace QualityGate.RealTime.Queries
         /// <summary>
         ///     Gets or sets the enumerable of names of the fields to order by.
         /// </summary>
-        public IEnumerable<string>? Fields { get; set; } = Array.Empty<string>();
+        public IEnumerable<string>? Fields { get; init; } = Array.Empty<string>();
 
         /// <summary>
         ///     Gets or sets a boolean saying whether the ordering is ascending (if true) or descending.
         /// </summary>
-        public bool Ascending { get; set; } = true;
+        public bool Ascending { get; init; } = true;
     }
 }

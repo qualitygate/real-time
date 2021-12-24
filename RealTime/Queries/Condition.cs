@@ -74,8 +74,9 @@ namespace QualityGate.RealTime.Queries
         /// <returns>True if the changed domain entity still satisfies this query.</returns>
         public bool Match(Change change)
         {
-            var propertyInfo = change.Entity.GetType().GetProperty(Field);
-            var propertyValue = propertyInfo?.GetValue(change.Entity);
+            var (entity, _, _) = change;
+            var propertyInfo = entity.GetType().GetProperty(Field);
+            var propertyValue = propertyInfo?.GetValue(entity);
 
             return OperatorBase.Equal.Evaluate(Value, propertyValue);
         }
