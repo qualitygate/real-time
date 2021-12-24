@@ -27,11 +27,12 @@ namespace QualityGate.RealTime.Domain
         {
             var session = _documentStore.OpenAsyncSession();
 
-            var entities = await session.Advanced.AsyncRawQuery<T>(query)
+            var baseQuery = session.Advanced.AsyncRawQuery<T>(query);
+            var entities = await baseQuery
                 .Skip(query.Size * query.Page)
                 .Take(query.Size)
                 .ToArrayAsync();
-            var total = await session.Query<object>(collectionName: query.Table).CountAsync();
+            var total = await baseQuery.CountAsync();
 
             return new PageInfo<T>(total, entities, query.Page, query.Size);
         }

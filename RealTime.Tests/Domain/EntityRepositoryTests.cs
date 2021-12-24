@@ -46,7 +46,7 @@ namespace QualityGate.RealTime.Tests.Domain
             var repository = new EntityRepository(store);
             var query = new PaginatedQuery(ConnectionId, QueryName, TableName)
             {
-                Conditions = new[] { new Condition(nameof(TestEntity.Age), OperatorBase.Eq, 10) },
+                Conditions = new[] { new Condition(nameof(TestEntity.Age), OperatorBase.Equal, 10) },
                 OrderBy = new OrderBy { Fields = new[] { nameof(TestEntity.Name) }, Ascending = false },
                 Page = 1,
                 Size = 2
@@ -55,7 +55,7 @@ namespace QualityGate.RealTime.Tests.Domain
 
             // Then
             var expectedPage = new PageInfo<TestEntity>(
-                9, 
+                5, 
                 new[] { entities.Single(x => x.Name == "3"), entities.Single(x => x.Name == "2") }, 
                 1, 
                 2);
@@ -77,7 +77,7 @@ namespace QualityGate.RealTime.Tests.Domain
             // When requested results for a paginated query
             var query = new Query(ConnectionId, QueryName, TableName)
             {
-                Conditions = new[] { new Condition(nameof(TestEntity.Age), OperatorBase.Eq, 10) },
+                Conditions = new[] { new Condition(nameof(TestEntity.Age), OperatorBase.Equal, 10) },
                 OrderBy = new OrderBy { Fields = new[] { nameof(TestEntity.Name) }, Ascending = false }
             };
             var result = repository.FindAllAsync<TestEntity>(query).WaitForResult();
