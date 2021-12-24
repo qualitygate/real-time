@@ -87,7 +87,7 @@ namespace QualityGate.RealTime.Tests
         {
             try
             {
-                return property.GetValue(@object);
+                return property.GetValue(@object)!;
             }
             catch (ArgumentException)
             {

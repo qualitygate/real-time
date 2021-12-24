@@ -1,7 +1,8 @@
 import {Operator} from './Operator'
 
 export const And = 'and'
-export type ConditionJoinOperator = typeof And
+export const Or = 'or'
+export type ConditionJoinOperator = typeof And | typeof Or
 
 /**
  * Defines a where condition in a query.

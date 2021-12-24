@@ -15,10 +15,10 @@ namespace QualityGate.RealTime.Tests
         private const string TableName = "entities";
         private const string QueryName = "all";
 
-        private IChangeNotifier _notifier;
-        private IQueryRepository _repository;
+        private IChangeNotifier? _notifier;
+        private IQueryRepository? _repository;
 
-        private DatabaseApiHub _subject;
+        private DatabaseApiHub? _subject;
 
 
         [TestInitialize]
@@ -42,39 +42,39 @@ namespace QualityGate.RealTime.Tests
             var queryDto = CreateQueryDto();
 
             // When
-            _subject.AddQuery(queryDto).WaitFor();
+            _subject!.AddQuery(queryDto).WaitFor();
 
             // Then
-            _repository
+            _repository!
                 .Received()
                 .AddQuery(Arg.Is<Query>(
                     q => q.ConnectionId == _subject.Context.ConnectionId &&
                          q.Name == QueryName &&
                          q.Table == TableName &&
-                         q.Fields.Length == 2 &&
-                         q.Conditions[0].Field == "Name" &&
-                         q.Conditions[0].Operator.Sign == OperatorBase.Eq.Sign &&
+                         q.Fields!.Length == 2 &&
+                         q.Conditions![0].Field == "Name" &&
+                         q.Conditions[0].Operator.Sign == OperatorBase.Equal.Sign &&
                          q.Conditions[0].Value as string == "John" &&
                          q.Conditions[0].JoinUsing == JoinOperator.And &&
                          q.Conditions[1].Field == "Age" &&
-                         q.Conditions[1].Operator.Sign == OperatorBase.Eq.Sign &&
-                         (int)q.Conditions[1].Value == 30 &&
+                         q.Conditions[1].Operator.Sign == OperatorBase.Equal.Sign &&
+                         (int)q.Conditions[1].Value! == 30 &&
                          q.Conditions[1].JoinUsing == null));
 
-            _notifier
+            _notifier!
                 .Received()
                 .NotifyFullResults(Arg.Is<Query>(
                     q => q.ConnectionId == _subject.Context.ConnectionId &&
                          q.Name == QueryName &&
                          q.Table == TableName &&
-                         q.Fields.Length == 2 &&
-                         q.Conditions[0].Field == "Name" &&
-                         q.Conditions[0].Operator.Sign == OperatorBase.Eq.Sign &&
+                         q.Fields!.Length == 2 &&
+                         q.Conditions![0].Field == "Name" &&
+                         q.Conditions[0].Operator.Sign == OperatorBase.Equal.Sign &&
                          q.Conditions[0].Value as string == "John" &&
                          q.Conditions[0].JoinUsing == JoinOperator.And &&
                          q.Conditions[1].Field == "Age" &&
-                         q.Conditions[1].Operator.Sign == OperatorBase.Eq.Sign &&
-                         (int)q.Conditions[1].Value == 30 &&
+                         q.Conditions[1].Operator.Sign == OperatorBase.Equal.Sign &&
+                         (int)q.Conditions[1].Value! == 30 &&
                          q.Conditions[1].JoinUsing == null));
         }
 
@@ -85,39 +85,39 @@ namespace QualityGate.RealTime.Tests
             var queryDto = CreateQueryDto();
 
             // When
-            _subject.ModifyQuery(queryDto).WaitFor();
+            _subject!.ModifyQuery(queryDto).WaitFor();
 
             // Then
-            _repository
+            _repository!
                 .Received()
                 .ModifyQuery(Arg.Is<Query>(
                     q => q.ConnectionId == _subject.Context.ConnectionId &&
                          q.Name == QueryName &&
                          q.Table == TableName &&
-                         q.Fields.Length == 2 &&
-                         q.Conditions[0].Field == "Name" &&
-                         q.Conditions[0].Operator.Sign == OperatorBase.Eq.Sign &&
+                         q.Fields!.Length == 2 &&
+                         q.Conditions![0].Field == "Name" &&
+                         q.Conditions[0].Operator.Sign == OperatorBase.Equal.Sign &&
                          q.Conditions[0].Value as string == "John" &&
                          q.Conditions[0].JoinUsing == JoinOperator.And &&
                          q.Conditions[1].Field == "Age" &&
-                         q.Conditions[1].Operator.Sign == OperatorBase.Eq.Sign &&
-                         (int)q.Conditions[1].Value == 30 &&
+                         q.Conditions[1].Operator.Sign == OperatorBase.Equal.Sign &&
+                         (int)q.Conditions[1].Value! == 30 &&
                          q.Conditions[1].JoinUsing == null));
 
-            _notifier
+            _notifier!
                 .Received()
                 .NotifyFullResults(Arg.Is<Query>(
                     q => q.ConnectionId == _subject.Context.ConnectionId &&
                          q.Name == QueryName &&
                          q.Table == TableName &&
-                         q.Fields.Length == 2 &&
-                         q.Conditions[0].Field == "Name" &&
-                         q.Conditions[0].Operator.Sign == OperatorBase.Eq.Sign &&
+                         q.Fields!.Length == 2 &&
+                         q.Conditions![0].Field == "Name" &&
+                         q.Conditions[0].Operator.Sign == OperatorBase.Equal.Sign &&
                          q.Conditions[0].Value as string == "John" &&
                          q.Conditions[0].JoinUsing == JoinOperator.And &&
                          q.Conditions[1].Field == "Age" &&
-                         q.Conditions[1].Operator.Sign == OperatorBase.Eq.Sign &&
-                         (int)q.Conditions[1].Value == 30 &&
+                         q.Conditions[1].Operator.Sign == OperatorBase.Equal.Sign &&
+                         (int)q.Conditions[1].Value! == 30 &&
                          q.Conditions[1].JoinUsing == null));
         }
 
@@ -128,10 +128,10 @@ namespace QualityGate.RealTime.Tests
             var exception = new ApplicationException();
 
             // When
-            _subject.OnDisconnectedAsync(exception).WaitFor();
+            _subject!.OnDisconnectedAsync(exception).WaitFor();
 
             // Then
-            _repository.RemoveAllQueries(ConnectionId);
+            _repository!.RemoveAllQueries(ConnectionId);
         }
 
         [TestMethod]
@@ -141,23 +141,23 @@ namespace QualityGate.RealTime.Tests
             var queryDto = CreateQueryDto();
 
             // When
-            _subject.RemoveQuery(queryDto).WaitFor();
+            _subject!.RemoveQuery(queryDto).WaitFor();
 
             // Then
-            _repository
+            _repository!
                 .Received()
                 .RemoveQuery(Arg.Is<Query>(
                     q => q.ConnectionId == _subject.Context.ConnectionId &&
                          q.Name == QueryName &&
                          q.Table == TableName &&
-                         q.Fields.Length == 2 &&
-                         q.Conditions[0].Field == "Name" &&
-                         q.Conditions[0].Operator.Sign == OperatorBase.Eq.Sign &&
+                         q.Fields!.Length == 2 &&
+                         q.Conditions![0].Field == "Name" &&
+                         q.Conditions[0].Operator.Sign == OperatorBase.Equal.Sign &&
                          q.Conditions[0].Value as string == "John" &&
                          q.Conditions[0].JoinUsing == JoinOperator.And &&
                          q.Conditions[1].Field == "Age" &&
-                         q.Conditions[1].Operator.Sign == OperatorBase.Eq.Sign &&
-                         (int)q.Conditions[1].Value == 30 &&
+                         q.Conditions[1].Operator.Sign == OperatorBase.Equal.Sign &&
+                         (int)q.Conditions[1].Value! == 30 &&
                          q.Conditions[1].JoinUsing == null));
         }
 
@@ -167,8 +167,8 @@ namespace QualityGate.RealTime.Tests
             Table = TableName,
             Conditions = new ConditionDto[]
             {
-                new("Name", OperatorBase.Eq.Sign, "John", JoinOperator.And.Operator),
-                new("Age", OperatorBase.Eq.Sign, 30)
+                new("Name", OperatorBase.Equal.Sign, "John", JoinOperator.And.Operator),
+                new("Age", OperatorBase.Equal.Sign, 30)
             },
             Fields = new[] { "Name", "Age" },
             OrderBy = new OrderBy { Fields = new[] { "Name", "Age" }, Ascending = true }

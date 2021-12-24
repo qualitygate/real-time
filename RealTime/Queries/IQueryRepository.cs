@@ -3,7 +3,7 @@ using QualityGate.RealTime.Changes;
 namespace QualityGate.RealTime.Queries
 {
     /// <summary>
-    ///     Repository that stores the registered queries by clients (browser webapps).
+    ///     Repository that stores the registered queries by clients (browser web-apps).
     /// </summary>
     /// <remarks>
     ///     The repository is capable to add/remove in thread-sage manner queries to it. It also allows bulk removal

@@ -27,7 +27,7 @@ export interface Database {
 
 	/**
 	 * Register the given paginated query for real-time synchronization. A paginated query is a one that is meant to
-	 * retrived a portion of the whole universe of entities of T type.
+	 * retrieve a portion of the whole universe of entities of T type.
 	 *
 	 * @param pageQuery: Definition of a paginated query, which represents the criteria to select a portion of entities of
 	 * a certain type at which the current app is interested on. It also slices the results by using the
@@ -107,9 +107,9 @@ export class DatabaseImpl implements Database {
 	private readonly _name: string
 
 	constructor(name: string,
-							listeners: DatabaseListeners,
-							connectionProvider?: ConnectionProvider,
-							logger?: Logger) {
+	            listeners: DatabaseListeners,
+	            connectionProvider?: ConnectionProvider,
+	            logger?: Logger) {
 		this._logger = logger ?? new LoggerImpl(name)
 		this._connectionProvider = connectionProvider ?? new ConnectionProvider()
 		this._name = name
@@ -133,8 +133,12 @@ export class DatabaseImpl implements Database {
 	}
 
 	async addPageQuery<T>(query: Query, setPageInfo: (pageInfo: PageInfo<T>) => void) {
-		this.checkConnected()
-		if (this.checkQueryExists(query)) return
+		this.failIfNotConnected()
+
+		if (this.checkQueryExists(query)) {
+			this._logger.warn(`Query: ${query.name} already exists. They can only be added once.`)
+			return
+		}
 
 		this._logger.debug(`Adding page query: ${query.name}, definition: ${JSON.stringify(query)}`)
 		this.registerQuery(query, setPageInfo, true)
@@ -144,8 +148,12 @@ export class DatabaseImpl implements Database {
 	}
 
 	async addQuery<T>(query: Query, setItems: (i: T[]) => void): Promise<void> {
-		this.checkConnected()
-		if (this.checkQueryExists(query)) return
+		this.failIfNotConnected()
+
+		if (this.checkQueryExists(query)) {
+			this._logger.warn(`Query: ${query.name} already exists. They can only be added once.`)
+			return
+		}
 
 		this._logger.debug(`Adding query: ${query.name}, definition: ${JSON.stringify(query)}`)
 		this.registerQuery(query, setItems)
@@ -196,7 +204,7 @@ export class DatabaseImpl implements Database {
 	}
 
 	async modifyQuery(query: Query): Promise<void> {
-		this.checkConnected()
+		this.failIfNotConnected()
 
 		if (!this.checkQueryExists(query)) {
 			this._logger.warn(`Query: ${query.name} does not exist.`)
@@ -209,7 +217,7 @@ export class DatabaseImpl implements Database {
 	}
 
 	async removeQuery(name: string): Promise<void> {
-		this.checkConnected()
+		this.failIfNotConnected()
 
 		if (!has(this._queries, name)) {
 			this._logger.warn(`Query: ${name} does not exist.`)
@@ -220,7 +228,7 @@ export class DatabaseImpl implements Database {
 		await this._connection.send(RemoveQuery, name)
 	}
 
-	private checkConnected() {
+	private failIfNotConnected() {
 		if (this.ready) return
 
 		throw new Error(
@@ -229,12 +237,7 @@ export class DatabaseImpl implements Database {
 	}
 
 	private checkQueryExists(query: Query): boolean {
-		if (!isNil(find(this._queries, q => q.name === query.name))) {
-			this._logger.warn(`Query: ${query.name} already exists. They can only be added once.`)
-			return true
-		}
-
-		return false
+		return !isNil(find(this._queries, q => q.name === query.name))
 	}
 
 	private deleteById(entities: Entity[], change: Change) {

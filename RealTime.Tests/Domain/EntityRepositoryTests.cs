@@ -46,7 +46,7 @@ namespace QualityGate.RealTime.Tests.Domain
             var repository = new EntityRepository(store);
             var query = new PaginatedQuery(ConnectionId, QueryName, TableName)
             {
-                Conditions = new[] { new Condition(nameof(TestEntity.Age), OperatorBase.Eq, 10) },
+                Conditions = new[] { new Condition(nameof(TestEntity.Age), OperatorBase.Equal, 10) },
                 OrderBy = new OrderBy { Fields = new[] { nameof(TestEntity.Name) }, Ascending = false },
                 Page = 1,
                 Size = 2
@@ -55,7 +55,7 @@ namespace QualityGate.RealTime.Tests.Domain
 
             // Then
             var expectedPage = new PageInfo<TestEntity>(
-                9, 
+                5, 
                 new[] { entities.Single(x => x.Name == "3"), entities.Single(x => x.Name == "2") }, 
                 1, 
                 2);
@@ -77,7 +77,7 @@ namespace QualityGate.RealTime.Tests.Domain
             // When requested results for a paginated query
             var query = new Query(ConnectionId, QueryName, TableName)
             {
-                Conditions = new[] { new Condition(nameof(TestEntity.Age), OperatorBase.Eq, 10) },
+                Conditions = new[] { new Condition(nameof(TestEntity.Age), OperatorBase.Equal, 10) },
                 OrderBy = new OrderBy { Fields = new[] { nameof(TestEntity.Name) }, Ascending = false }
             };
             var result = repository.FindAllAsync<TestEntity>(query).WaitForResult();
@@ -96,7 +96,7 @@ namespace QualityGate.RealTime.Tests.Domain
             var repository = new EntityRepository(store);
 
             // When asked for the entity with a certain Id
-            var foundEntity = repository.FindAsync<TestEntity>(entities[2].Id).WaitForResult();
+            var foundEntity = repository.FindAsync<TestEntity>(entities[2].Id!).WaitForResult();
 
             // The correct entity must be returned
             foundEntity.AssertEqualByValues(entities[2]);
@@ -129,23 +129,11 @@ namespace QualityGate.RealTime.Tests.Domain
             };
             var anotherEntities = new[] { anotherEntity1, anotherEntity2 };
 
-            using (var setupSession = store.OpenSession())
-            {
-                foreach (var testEntity in testEntities) setupSession.Store(testEntity);
-                foreach (var testEntity in anotherEntities) setupSession.Store(testEntity);
-                setupSession.Store(targetEntity1);
-                setupSession.Store(targetEntity2);
-                setupSession.Store(targetEntity3);
-                setupSession.Store(targetEntity4);
-                setupSession.Store(targetEntity5);
-                setupSession.Store(targetEntity6);
-                setupSession.Store(targetEntity7);
-                setupSession.Store(targetEntity8);
-                setupSession.Store(targetEntity9);
-                setupSession.Store(anotherEntity1);
-                setupSession.Store(anotherEntity2);
-                setupSession.SaveChanges();
-            }
+            using var setupSession = store.OpenSession();
+            
+            foreach (var testEntity in testEntities) setupSession.Store(testEntity);
+            foreach (var testEntity in anotherEntities) setupSession.Store(testEntity);
+            setupSession.SaveChanges();
 
             return testEntities;
         }

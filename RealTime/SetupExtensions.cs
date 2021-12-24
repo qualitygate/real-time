@@ -22,6 +22,7 @@ namespace QualityGate.RealTime
     ///     Contains extensions to easily setup the Real time data synchronization in ASPNET Core services.
     /// </summary>
     [ExcludeFromCodeCoverage]
+    // ReSharper disable once UnusedType.Global
     public static class SetupExtensions
     {
         /// <summary>
@@ -35,6 +36,7 @@ namespace QualityGate.RealTime
         /// <param name="configuration">
         ///     Application configuration to extract RavenDB connection information from.
         /// </param>
+        // ReSharper disable once UnusedMember.Global
         public static void AddRealTime(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddSignalR();
@@ -56,6 +58,7 @@ namespace QualityGate.RealTime
         ///     Application builder that allows the configuration of the ASPNET Core app in the way mentioned in the
         ///     summary.
         /// </param>
+        // ReSharper disable once UnusedMember.Global
         public static void UseRealTime(this IApplicationBuilder app)
         {
             var documentStore = app.ApplicationServices.GetService<IDocumentStore>()!;

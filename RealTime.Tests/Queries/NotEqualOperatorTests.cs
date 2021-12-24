@@ -4,43 +4,43 @@ using QualityGate.RealTime.Queries;
 namespace QualityGate.RealTime.Tests.Queries
 {
     [TestClass]
-    public class EqualOperatorTests
+    public class NotEqualOperatorTests
     {
-        private readonly EqualOperator _subject = new();
+        private readonly NotEqualOperator _subject = new();
 
 
         [TestMethod]
-        public void Evaluate_BothValuesAreNull_ReturnsTrue()
+        public void Evaluate_BothValuesAreNull_ReturnsFalse()
         {
             // When
             var result = _subject.Evaluate(null, null);
+
+            // Then
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void Evaluate_ExpectedValueIsNull_ReturnsTrue()
+        {
+            // When
+            var result = _subject.Evaluate(null, 1);
 
             // Then
             Assert.IsTrue(result);
         }
 
         [TestMethod]
-        public void Evaluate_ExpectedValueIsNull_ReturnsFalse()
-        {
-            // When
-            var result = _subject.Evaluate(null, 1);
-
-            // Then
-            Assert.IsFalse(result);
-        }
-
-        [TestMethod]
-        public void Evaluate_ActualValueIsNull_ReturnsFalse()
+        public void Evaluate_ActualValueIsNull_ReturnsTrue()
         {
             // When
             var result = _subject.Evaluate(1, null);
 
             // Then
-            Assert.IsFalse(result);
+            Assert.IsTrue(result);
         }
 
         [TestMethod]
-        public void Evaluate_BothReferenceValuesAreSameObject_ReturnsTrue()
+        public void Evaluate_BothReferenceValuesAreSameObject_ReturnsFalse()
         {
             // Given
             var value = new { };
@@ -49,27 +49,27 @@ namespace QualityGate.RealTime.Tests.Queries
             var result = _subject.Evaluate(value, value);
 
             // Then
-            Assert.IsTrue(result);
+            Assert.IsFalse(result);
         }
 
         [TestMethod]
-        public void Evaluate_BothValuesAreSame_ReturnsTrue()
+        public void Evaluate_BothValuesAreSame_ReturnsFalse()
         {
             // When
             var result = _subject.Evaluate(1, 1);
 
             // Then
-            Assert.IsTrue(result);
+            Assert.IsFalse(result);
         }
 
         [TestMethod]
-        public void Evaluate_BothValuesAreNotSame_ReturnsFalse()
+        public void Evaluate_BothValuesAreNotSame_ReturnsTrue()
         {
             // When
             var result = _subject.Evaluate(1, 2);
 
             // Then
-            Assert.IsFalse(result);
+            Assert.IsTrue(result);
         }
     }
 }
