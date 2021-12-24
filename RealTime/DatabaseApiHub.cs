@@ -24,8 +24,8 @@ namespace QualityGate.RealTime
         ///     Initializes a new instance of <see cref="DatabaseApiHub"/> class given a logger, entity repository
         ///     and a change notifier.
         /// </summary>
-        /// <param name="logger">Used to log events occuring in this instance.</param>
-        /// <param name="queryRepository">Repository that allows to obtain, register and unregister queries.</param>
+        /// <param name="logger">Used to log events occurring in this instance.</param>
+        /// <param name="queryRepository">Repository that allows to obtain, register and un-register queries.</param>
         /// <param name="notifier">
         ///     An object used to notify changes in entities satisfying any of the registered queries.
         /// </param>
@@ -39,6 +39,15 @@ namespace QualityGate.RealTime
             _notifier = notifier;
         }
 
+
+        /// <summary>
+        ///     Called by SignalR engine when a connection disconnects by an exception. It removes all queries
+        ///     associated to the broken connection.
+        /// </summary>
+        /// <param name="exception">The <see cref="Exception"/> that broke the connection.</param>
+        /// <returns>
+        ///     A <see cref="Task"/> that does the removal of the disassociated queries.
+        /// </returns>
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
             _logger.LogError(exception, $"Disconnected: {Context.ConnectionId}");
@@ -52,6 +61,7 @@ namespace QualityGate.RealTime
         ///     Registers a query given its data.
         /// </summary>
         /// <param name="queryDto">DTO bringing the details of the query to register.</param>
+        /// <returns>A <see cref="Task"/> that asynchronously does the registration.</returns>
         public async Task AddQuery(QueryDto queryDto)
         {
             _logger.LogDebug($"AddQuery, Name: {queryDto.Name}");
@@ -60,11 +70,26 @@ namespace QualityGate.RealTime
             _queryRepository.AddQuery(query);
 
             _logger.LogDebug("Sending first results");
-            await _notifier.NotifyFirstTime(query);
+            await _notifier.NotifyFullResults(query);
         }
 
         /// <summary>
-        ///     Unregisters the query matching the given definition.
+        ///     Modifies an existing query with a new definition of itself and notifies again the results.
+        /// </summary>
+        /// <param name="queryDto">New definition to apply to an existing query</param>
+        /// <returns></returns>
+        public async Task ModifyQuery(QueryDto queryDto)
+        {
+            _logger.LogDebug($"ModifyQuery, Name: {queryDto.Name}");
+
+            var query = queryDto.ToQuery(Context.ConnectionId);
+            _queryRepository.ModifyQuery(query);
+
+            await _notifier.NotifyFullResults(query);
+        }
+
+        /// <summary>
+        ///     Un-registers the query matching the given definition.
         /// </summary>
         /// <param name="queryDto">DTO bringing the details of the query to register.</param>
         public Task RemoveQuery(QueryDto queryDto) => Task.Factory.StartNew(() =>

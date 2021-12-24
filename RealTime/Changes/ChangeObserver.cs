@@ -21,7 +21,7 @@ namespace QualityGate.RealTime.Changes
         /// <summary>
         ///     Initializes a new instance of <see cref="ChangeObserver"/> with a logger and a query notifier.
         /// </summary>
-        /// <param name="logger">Used to log events occuring in this instance.</param>
+        /// <param name="logger">Used to log events occurring in this instance.</param>
         /// <param name="notifier">Notifies the observed changes</param>
         public ChangeObserver(ILogger<ChangeObserver> logger, IChangeNotifier notifier)
         {
@@ -54,12 +54,12 @@ namespace QualityGate.RealTime.Changes
         ///     notification infrastructure to let the listening browsers client know.
         /// </summary>
         /// <param name="change">
-        ///     This is the description of the change occured to an entity in RavenDB.
+        ///     This is the description of the change occurred to an entity in RavenDB.
         /// </param>
         public async void OnNext(DocumentChange change)
         {
             _logger.LogDebug($"Table: {change.CollectionName}, Type: {change.Type}, Id: {change.Id}");
-            await _notifier.Notify(change);
+            await _notifier.NotifyEntityChanged(change);
         }
     }
 }

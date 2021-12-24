@@ -17,6 +17,7 @@
 		"jsx": "react",
 		"importHelpers": true,
 		"types": [
+			"jest"
 		]
 	},
 	"include": [

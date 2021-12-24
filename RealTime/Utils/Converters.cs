@@ -20,15 +20,23 @@ namespace QualityGate.RealTime.Utils
         /// </returns>
         public static Query ToQuery(this QueryDto queryDto, string connectionId)
         {
-            Condition ToCondition(ConditionDto c) => c;
+            static Condition ToCondition(ConditionDto c) => c;
+
+            if (queryDto.Page is not null || queryDto.Size is not null)
+            {
+                return new PaginatedQuery(connectionId, queryDto.Name, queryDto.Table, queryDto.Page ?? 0, queryDto.Size ?? 0)
+                {
+                    Fields = queryDto.Fields,
+                    Conditions = queryDto.Conditions?.Select(ToCondition).ToArray(),
+                    OrderBy = queryDto.OrderBy
+                };
+            }
 
             return new Query(connectionId, queryDto.Name, queryDto.Table)
             {
                 Fields = queryDto.Fields,
                 Conditions = queryDto.Conditions?.Select(ToCondition).ToArray(),
-                OrderBy = queryDto.OrderBy,
-                Take = queryDto.Take,
-                Skip = queryDto.Skip
+                OrderBy = queryDto.OrderBy
             };
         }
 

@@ -1,7 +1,6 @@
 import React, {useContext} from 'react'
 import {isNil} from 'lodash'
-import {Database, DatabaseImpl} from '../database/Database'
-import {DatabaseListeners} from '../database/DatabaseListeners'
+import {createDatabase, Database} from '../database'
 
 interface Databases {
 	[key: string]: Database
@@ -15,10 +14,6 @@ export interface DatabaseProviderProps {
 	children?: any
 }
 
-interface DatabaseProviderState {
-	initialized: boolean
-}
-
 /**
  * Gets a reference to the nearest <DatabaseProvider/> element provided database instance.
  * @return {Database} instance provided by the nearest <DatabaseProvider/> up in the tree of the caller component.
@@ -28,8 +23,7 @@ export function useDatabase(databaseName: string): Database {
 	let database = databases[databaseName]
 
 	if (isNil(database)) {
-		const listeners = new DatabaseListeners()
-		database = databases[databaseName] = new DatabaseImpl(databaseName, listeners)
+		database = databases[databaseName] = createDatabase(databaseName)
 	}
 
 	return database
@@ -38,11 +32,7 @@ export function useDatabase(databaseName: string): Database {
 /**
  * Include this component on the component tree where children will require and instance of a database.
  */
-export class DatabaseProvider extends React.Component<DatabaseProviderProps, DatabaseProviderState> {
-	state = {
-		initialized: false
-	}
-
+export class DatabaseProvider extends React.Component<DatabaseProviderProps> {
 	constructor(props) {
 		super(props)
 	}

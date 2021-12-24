@@ -34,13 +34,13 @@ namespace QualityGate.RealTime.Queries
         public string Table { get; set; } = "?";
 
         /// <summary>
-        ///     Gets or sets the elements to take from all the instances in the query.
+        ///     Gets or sets the number of the slice of elements to fetch.
         /// </summary>
-        public int? Take { get; set; }
+        public int? Page { get; set; }
 
         /// <summary>
-        ///     Gets or sets the elements to skip from all the instances in the query.
+        ///     Gets or sets the size of the slice of elements to fetch.
         /// </summary>
-        public int? Skip { get; set; }
+        public int? Size { get; set; }
     };
 }

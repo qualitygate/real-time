@@ -1,6 +1,5 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using QualityGate.RealTime.Changes;
 
 namespace QualityGate.RealTime.Notifications
 {
@@ -25,11 +24,7 @@ namespace QualityGate.RealTime.Notifications
 
 
         /// <inheritdoc cref="IClientPool.InvokeMethodAsync"/>
-        public Task InvokeMethodAsync(
-            string method,
-            string connectionId,
-            string queryName,
-            params ExternalChange[] changes)
+        public Task InvokeMethodAsync(string method, string connectionId, string queryName, object changes)
         {
             var client = _hubContext.Clients.Clients(connectionId);
 

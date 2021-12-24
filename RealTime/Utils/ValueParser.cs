@@ -20,6 +20,7 @@ namespace QualityGate.RealTime.Utils
         {
             return value switch
             {
+                // Difficult to test, System.Text.Json namespace does not provides public constructors for some of its classes
                 JsonElement { ValueKind: JsonValueKind.String } jsonString => jsonString.GetString(),
                 JsonElement { ValueKind: JsonValueKind.Number } jsonNumber => ParseNumber(jsonNumber),
                 string stringValue => stringValue,

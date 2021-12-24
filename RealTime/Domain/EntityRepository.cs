@@ -22,21 +22,31 @@ namespace QualityGate.RealTime.Domain
         }
 
 
-        /// <inheritdoc cref="IEntityRepository.Find{T}(QualityGate.RealTime.Queries.Query)"/>
-        public Task<T[]> Find<T>(Query query)
+        /// <inheritdoc cref="IEntityRepository.FindPageAsync{T}"/>
+        public async Task<PageInfo<T>> FindPageAsync<T>(PaginatedQuery query)
         {
-            using var session = _documentStore.OpenAsyncSession();
-            return session.Advanced
-                .AsyncRawQuery<T>(query)
-                .Skip(query.Skip ?? 0)
-                .Take(query.Take ?? int.MaxValue)
+            var session = _documentStore.OpenAsyncSession();
+
+            var entities = await session.Advanced.AsyncRawQuery<T>(query)
+                .Skip(query.Size * query.Page)
+                .Take(query.Size)
                 .ToArrayAsync();
+            var total = await session.Query<object>(collectionName: query.Table).CountAsync();
+
+            return new PageInfo<T>(total, entities, query.Page, query.Size);
         }
 
-        /// <inheritdoc cref="IEntityRepository.Find{T}(string)"/>
-        public async Task<T> Find<T>(string id)
+        /// <inheritdoc cref="FindAllAsync{T}"/>
+        public async Task<T[]> FindAllAsync<T>(Query query)
         {
-            using var session = _documentStore.OpenAsyncSession();
+            var session = _documentStore.OpenAsyncSession();
+            return await session.Advanced.AsyncRawQuery<T>(query).ToArrayAsync();
+        }
+
+        /// <inheritdoc cref="IEntityRepository.FindAsync{T}"/>
+        public async Task<T> FindAsync<T>(string id)
+        {
+            var session = _documentStore.OpenAsyncSession();
             return await session.LoadAsync<T>(id);
         }
     }
