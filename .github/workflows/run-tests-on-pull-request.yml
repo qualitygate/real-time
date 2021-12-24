@@ -13,8 +13,7 @@ jobs:
         with:
           dotnet-version: '5.0.103'
       - name: Run all tests
-        run: |
-          dotnet test RealTime.Tests
+        run: dotnet test RealTime.Tests
   npm-package-unit-tests:
     runs-on: ubuntu-latest
     steps:
