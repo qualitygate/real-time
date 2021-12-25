@@ -167,8 +167,8 @@ namespace QualityGate.RealTime.Tests
             Table = TableName,
             Conditions = new ConditionDto[]
             {
-                new("Name", Operator.Equal.Symbol, "John", JoinOperator.And.Operator),
-                new("Age", Operator.Equal.Symbol, 30)
+                new("Name", Operator.Equal.Symbol, JoinOperator.And.Operator, Value: "John"),
+                new("Age", Operator.Equal.Symbol, Value: 30)
             },
             Fields = new[] { "Name", "Age" },
             OrderBy = new OrderBy { Fields = new[] { "Name", "Age" }, Ascending = true }

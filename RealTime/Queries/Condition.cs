@@ -38,8 +38,10 @@ namespace QualityGate.RealTime.Queries
         {
             var condition = new Condition(conditionDto.Field, conditionDto.Operator, conditionDto.Value);
 
-            if (conditionDto.JoinUsing is not null)
-                condition.JoinUsing = conditionDto.JoinUsing;
+            if (conditionDto.JoinUsing is not null)  condition.JoinUsing = conditionDto.JoinUsing;
+            
+            condition.LeftParenthesis = conditionDto.LeftParenthesis;
+            condition.RightParenthesis = conditionDto.RightParenthesis;
 
             return condition;
         }
@@ -55,9 +57,19 @@ namespace QualityGate.RealTime.Queries
         public string Field { get; }
 
         /// <summary>
+        ///     Gets or sets an optional value saying whether or not this condition has a parenthesis to its left.
+        /// </summary>
+        public bool? LeftParenthesis { get; set; }
+
+        /// <summary>
         ///     Gets the logical operator to use in the comparison.
         /// </summary>
         public Operator Operator { get; }
+
+        /// <summary>
+        ///     Gets or sets an optional value saying whether or not this condition has a parenthesis to its right.
+        /// </summary>
+        public bool? RightParenthesis { get; set; }
 
         /// <summary>
         ///     Gets the value to compare the domain entity field with.

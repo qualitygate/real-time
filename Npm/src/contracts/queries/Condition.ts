@@ -19,9 +19,19 @@ export interface Condition {
 	joinUsing?: ConditionJoinOperator
 
 	/**
+	 * Determines whether to add or not a parenthesis to left part of this condition.
+	 */
+	leftParenthesis?: boolean,
+
+	/**
 	 * Operator expressing what kind of comparison will be done between the field value and this Where value field.
 	 */
 	operator: Operator
+
+	/**
+	 * Determines whether to add or not a parenthesis to right part of this condition.
+	 */
+	rightParenthesis?: boolean,
 
 	/**
 	 * The value to compare with the field's.
