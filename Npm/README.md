@@ -292,4 +292,4 @@ appreciated.
 
 ## Changelog
 
-Latest changes are tracked at the [CHANGELOG.md](./CHANGELOG.md)
+Latest changes are tracked at the [CHANGELOG.md](https://github.com/qualitygate/real-time/blob/main/Npm/CHANGELOG.md)
