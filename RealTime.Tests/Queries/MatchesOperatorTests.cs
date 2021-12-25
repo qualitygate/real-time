@@ -77,7 +77,7 @@ namespace QualityGate.RealTime.Tests.Queries
             var statement = _subject.ToRql("Name", "'Peter John'");
 
             // Then
-            Assert.AreEqual("regex(Name, '^.*Peter John.*$')", statement);
+            Assert.AreEqual("regex(Name, 'Peter John')", statement);
         }
 
         [TestMethod]
@@ -87,7 +87,7 @@ namespace QualityGate.RealTime.Tests.Queries
             var statement = _subject.ToRql("Name", "Peter");
 
             // Then
-            Assert.AreEqual("regex(Name, '^.*Peter.*$')", statement);
+            Assert.AreEqual("regex(Name, 'Peter')", statement);
         }
 
         // Given a value and it's expected pattern to match

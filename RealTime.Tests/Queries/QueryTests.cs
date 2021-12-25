@@ -131,7 +131,7 @@ namespace QualityGate.RealTime.Tests.Queries
 
             // Then
             Assert.AreEqual(
-                "from entities where (Name = 'Senna' and regex(Name, '^.*John.*$')) or Id = 1 or Id <> 2 order by Name, Id desc select Name, Id",
+                "from entities where (Name = 'Senna' and regex(Name, 'John')) or Id = 1 or Id <> 2 order by Name, Id desc select Name, Id",
                 queryString);
         }
 

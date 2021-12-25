@@ -57,8 +57,7 @@ namespace QualityGate.RealTime.Queries
 
         private static string BuildRegexFor(string actualValue)
         {
-            var escapedRegex = Regex.Escape(actualValue).Replace(@"\ ", " ");
-            return $"^.*{escapedRegex}.*$";
+            return Regex.Escape(actualValue).Replace(@"\ ", " ");
         }
     }
 }
