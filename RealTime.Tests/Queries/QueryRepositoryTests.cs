@@ -117,7 +117,7 @@ namespace QualityGate.RealTime.Tests.Queries
             var query3 = query1 with
             {
                 Name = "query#3",
-                Conditions = new[] { new Condition(nameof(IEntity.Id), OperatorBase.Equal, 2) }
+                Conditions = new[] { new Condition(nameof(IEntity.Id), Operator.Equal, 2) }
             };
             _subject!.AddQuery(query1);
             _subject.AddQuery(query2);
@@ -143,7 +143,7 @@ namespace QualityGate.RealTime.Tests.Queries
         private static Query CreateQuery(string connectionId = ConnectionId) =>
             new(connectionId, "query#1", TableName)
             {
-                Conditions = new[] { new Condition(nameof(IEntity.Id), OperatorBase.Equal, 1) }
+                Conditions = new[] { new Condition(nameof(IEntity.Id), Operator.Equal, 1) }
             };
     }
 }

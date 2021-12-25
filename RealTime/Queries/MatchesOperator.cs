@@ -1,15 +1,19 @@
+using System;
+
 namespace QualityGate.RealTime.Queries
 {
     /// <summary>
-    ///     Operator representing the = sign. Compares two objects checking its equality.
+    ///     Represents the "Matches" operator. The one that signal that the condition where it's present should check
+    ///     whether the field value matches the expression defined in the condition's value.
     /// </summary>
-    public class EqualOperator : Operator
+    public class MatchesOperator : Operator
     {
         /// <summary>
-        ///     Returns the "=" operator symbol.
+        ///     Returns the "matches" operator symbol.
         /// </summary>
-        public override string Symbol => "=";
+        public override string Symbol => "matches";
 
+        
         /// <summary>
         ///     Compares by value the given two objects.
         /// </summary>
@@ -21,9 +25,7 @@ namespace QualityGate.RealTime.Queries
         /// </returns>
         public override bool Evaluate(object? expected, object? actual)
         {
-            var bothAreNull = expected is null && actual is null;
-
-            return bothAreNull || expected?.ToString()?.Equals(actual?.ToString()) == true;
+            throw new NotImplementedException();
         }
     }
 }

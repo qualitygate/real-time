@@ -38,8 +38,8 @@ namespace QualityGate.RealTime.Tests
                 Fields = new[] { "Name", "Age" },
                 Conditions = new[]
                 {
-                    new Condition("Name", OperatorBase.Equal, "John") { JoinUsing = JoinOperator.And },
-                    new Condition("Age", OperatorBase.Equal, 30)
+                    new Condition("Name", Operator.Equal, "John") {JoinUsing = JoinOperator.And},
+                    new Condition("Age", Operator.Equal, 30)
                 },
                 OrderBy = queryDto.OrderBy
             };
@@ -57,6 +57,7 @@ namespace QualityGate.RealTime.Tests
                 Assert.AreEqual(c1.Value, c2.Value);
                 Assert.AreEqual(c1.JoinUsing, c2.JoinUsing);
             }
+
             Assert.AreEqual(2, query.Conditions!.Length);
             AssertEqual(expectedQuery.Conditions[0], query.Conditions![0]);
             AssertEqual(expectedQuery.Conditions[1], query.Conditions![1]);
@@ -76,8 +77,10 @@ namespace QualityGate.RealTime.Tests
                 Table = "entities",
                 Conditions = new[]
                 {
-                    new ConditionDto("Name", "=", "John", JoinOperator.And.Operator),
-                    new ConditionDto("Age", "=", 30)
+                    new ConditionDto("LastName", Operator.Matches, "*caster*", JoinOperator.And.Operator),
+                    new ConditionDto("Name", Operator.NotEqual, "John", JoinOperator.And.Operator),
+                    new ConditionDto("Age", Operator.Equal, 30, JoinOperator.Or.Operator),
+                    new ConditionDto("Age", Operator.Equal, 31)
                 },
                 OrderBy = new OrderBy
                 {
@@ -98,8 +101,10 @@ namespace QualityGate.RealTime.Tests
                 Fields = new[] { "Name", "Age" },
                 Conditions = new[]
                 {
-                    new Condition("Name", OperatorBase.Equal, "John") { JoinUsing = JoinOperator.And },
-                    new Condition("Age", OperatorBase.Equal, 30)
+                    new Condition("LastName", Operator.Matches, "*caster*") {JoinUsing = JoinOperator.And},
+                    new Condition("Name", Operator.NotEqual, "John") {JoinUsing = JoinOperator.And},
+                    new Condition("Age", Operator.Equal, 30) {JoinUsing = JoinOperator.Or},
+                    new Condition("Age", Operator.Equal, 31)
                 },
                 OrderBy = queryDto.OrderBy
             };
@@ -117,9 +122,10 @@ namespace QualityGate.RealTime.Tests
                 Assert.AreEqual(c1.Value, c2.Value);
                 Assert.AreEqual(c1.JoinUsing, c2.JoinUsing);
             }
-            Assert.AreEqual(2, query.Conditions!.Length);
-            AssertEqual(expectedQuery.Conditions[0], query.Conditions![0]);
-            AssertEqual(expectedQuery.Conditions[1], query.Conditions![1]);
+
+            Assert.AreEqual(4, query.Conditions!.Length);
+            for (var i = 0; i < query.Conditions.Length; i++)
+                AssertEqual(expectedQuery.Conditions[i], query.Conditions![i]);
 
             // Assert the order by
             CollectionAssert.AreEquivalent(expectedQuery.OrderBy!.Fields!.ToArray(), query.OrderBy!.Fields!.ToArray());

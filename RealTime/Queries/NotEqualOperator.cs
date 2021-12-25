@@ -1,11 +1,14 @@
 namespace QualityGate.RealTime.Queries
 {
     /// <summary>
-    ///     Operator representing the = sign. Compares two objects checking its equality.
+    ///     Operator representing the &lt;&gt; sign. Compares two objects checking its inequality.
     /// </summary>
-    public class NotEqualOperator : OperatorBase
+    public class NotEqualOperator : Operator
     {
-        public override string Sign => "<>";
+        /// <summary>
+        ///     Returns the "&lt;&gt;" operator symbol.
+        /// </summary>
+        public override string Symbol => "<>";
 
         /// <summary>
         ///     Compares by value the given two objects.

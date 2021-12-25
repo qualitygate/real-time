@@ -19,7 +19,7 @@ namespace QualityGate.RealTime.Queries
         ///     The value that in order for the condition to be true, must be compared to the domain entity's field value
         ///     using the specified logical operator.
         /// </param>
-        public Condition(string field, OperatorBase @operator, object? value = null)
+        public Condition(string field, Operator @operator, object? value = null)
         {
             Field = field;
             Operator = @operator;
@@ -57,7 +57,7 @@ namespace QualityGate.RealTime.Queries
         /// <summary>
         ///     Gets the logical operator to use in the comparison.
         /// </summary>
-        public OperatorBase Operator { get; }
+        public Operator Operator { get; }
 
         /// <summary>
         ///     Gets the value to compare the domain entity field with.
@@ -78,7 +78,7 @@ namespace QualityGate.RealTime.Queries
             var propertyInfo = entity.GetType().GetProperty(Field);
             var propertyValue = propertyInfo?.GetValue(entity);
 
-            return OperatorBase.Equal.Evaluate(Value, propertyValue);
+            return Operator.Equal.Evaluate(Value, propertyValue);
         }
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace QualityGate.RealTime.Queries
                 null => "null",
                 _ => $"{Value}"
             };
-            builder.Append($"{Field} {Operator.Sign} {value}");
+            builder.Append($"{Field} {Operator.Symbol} {value}");
 
             if (JoinUsing is not null) builder.Append($" {JoinUsing.Operator}");
 
