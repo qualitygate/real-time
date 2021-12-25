@@ -18,7 +18,7 @@ namespace QualityGate.RealTime.Tests
                 Table = "entities",
                 Conditions = new[]
                 {
-                    new ConditionDto("LastName", Operator.Matches, JoinOperator.And, true, Value: "*caster*"),
+                    new ConditionDto("LastName", Operator.Matches, JoinOperator.And, true, Value: "caster"),
                     new ConditionDto("Name", Operator.NotEqual, JoinOperator.And, Value: "John", RightParenthesis: true),
                     new ConditionDto("Age", Operator.Equal, JoinOperator.Or, Value: 30),
                     new ConditionDto("Age", Operator.Equal, Value: 31)
@@ -40,7 +40,7 @@ namespace QualityGate.RealTime.Tests
                 Fields = new[] { "Name", "Age" },
                 Conditions = new[]
                 {
-                    new Condition("LastName", Operator.Matches, "*caster*") {JoinUsing = JoinOperator.And, LeftParenthesis = true},
+                    new Condition("LastName", Operator.Matches, "caster") {JoinUsing = JoinOperator.And, LeftParenthesis = true},
                     new Condition("Name", Operator.NotEqual, "John") {JoinUsing = JoinOperator.And, RightParenthesis = true},
                     new Condition("Age", Operator.Equal, 30) {JoinUsing = JoinOperator.Or},
                     new Condition("Age", Operator.Equal, 31)
@@ -83,7 +83,7 @@ namespace QualityGate.RealTime.Tests
                 Table = "entities",
                 Conditions = new[]
                 {
-                    new ConditionDto("LastName", Operator.Matches, JoinOperator.And.Operator, true, Value: "*caster*"),
+                    new ConditionDto("LastName", Operator.Matches, JoinOperator.And.Operator, true, Value: "caster"),
                     new ConditionDto("Name", Operator.NotEqual, JoinOperator.And.Operator, Value: "John", RightParenthesis: true),
                     new ConditionDto("Age", Operator.Equal, JoinOperator.Or.Operator, Value: 30),
                     new ConditionDto("Age", Operator.Equal, Value: 31)
@@ -107,7 +107,7 @@ namespace QualityGate.RealTime.Tests
                 Fields = new[] { "Name", "Age" },
                 Conditions = new[]
                 {
-                    new Condition("LastName", Operator.Matches, "*caster*") {JoinUsing = JoinOperator.And, LeftParenthesis = true},
+                    new Condition("LastName", Operator.Matches, "caster") {JoinUsing = JoinOperator.And, LeftParenthesis = true},
                     new Condition("Name", Operator.NotEqual, "John") {JoinUsing = JoinOperator.And, RightParenthesis = true},
                     new Condition("Age", Operator.Equal, 30) {JoinUsing = JoinOperator.Or},
                     new Condition("Age", Operator.Equal, 31)

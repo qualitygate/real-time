@@ -20,7 +20,7 @@ namespace QualityGate.RealTime.Tests.Queries
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void Evaluate_ExpectedValueIsEmptyString_ThrowsException() => _subject.Evaluate(string.Empty, "*a*");
+        public void Evaluate_ExpectedValueIsEmptyString_ThrowsException() => _subject.Evaluate(string.Empty, "a");
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
@@ -28,7 +28,7 @@ namespace QualityGate.RealTime.Tests.Queries
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
-        public void Evaluate_ExpectedValueIsNotString_ThrowsException() => _subject.Evaluate(1, "*a*");
+        public void Evaluate_ExpectedValueIsNotString_ThrowsException() => _subject.Evaluate(1, "a");
 
         [TestMethod]
         [ExpectedException(typeof(ArgumentException))]
@@ -37,19 +37,19 @@ namespace QualityGate.RealTime.Tests.Queries
         [TestMethod]
         public void Evaluate_ExpectedValueMatchesActual_ReturnsTrue_Sample1()
         {
-            AssertMatches("John Peters", "*ers*");
+            AssertMatches("John Peters", "ers");
         }
 
         [TestMethod]
         public void Evaluate_ExpectedValueMatchesActual_ReturnsTrue_Sample2()
         {
-            AssertMatches("John Peters", "John*");
+            AssertMatches("John Peters", "John");
         }
 
         [TestMethod]
         public void Evaluate_ExpectedValueMatchesActual_ReturnsTrue_Sample3()
         {
-            AssertMatches("John Peters", "*Peters");
+            AssertMatches("John Peters", "Peters");
         }
 
         [TestMethod]
@@ -61,23 +61,33 @@ namespace QualityGate.RealTime.Tests.Queries
         [TestMethod]
         public void Evaluate_ExpectedValueDoesNotMatchesActual_ReturnsFalse_Sample1()
         {
-            AssertMatches("John Peters", "John Peter", false);
+            AssertMatches("John Peters", "John Peter1", false);
         }
 
         [TestMethod]
         public void Evaluate_ExpectedValueDoesNotMatchesActual_ReturnsFalse_Sample2()
         {
-            AssertMatches("John Peters", "*Pet", false);
+            AssertMatches("John Peters", ".Pet", false);
         }
 
         [TestMethod]
-        public void ToRql_ReturnsCorrectMatchesStatement()
+        public void ToRql_GivenStringValue_ReturnsCorrectMatchesStatement()
         {
             // When
-            var statement = _subject.ToRql("Name", "'*Peter*'");
+            var statement = _subject.ToRql("Name", "'Peter John'");
 
             // Then
-            Assert.AreEqual("search(Name, '*Peter*')", statement);
+            Assert.AreEqual("regex(Name, '^.*Peter John.*$')", statement);
+        }
+
+        [TestMethod]
+        public void ToRql_GivenNonStringValue_ReturnsCorrectMatchesStatement()
+        {
+            // When
+            var statement = _subject.ToRql("Name", "Peter");
+
+            // Then
+            Assert.AreEqual("regex(Name, '^.*Peter.*$')", statement);
         }
 
         // Given a value and it's expected pattern to match

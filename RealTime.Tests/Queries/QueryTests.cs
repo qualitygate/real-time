@@ -106,9 +106,15 @@ namespace QualityGate.RealTime.Tests.Queries
                 Fields = new[] { "Name", "Id" },
                 Conditions = new[]
                 {
-                    new Condition("Name", Operator.Equal, "Senna") { JoinUsing = JoinOperator.And },
-                    new Condition("Name", Operator.Matches, "*John*") { JoinUsing = JoinOperator.Or },
-                    new Condition("Id", Operator.Equal, 1) { JoinUsing = JoinOperator.Or },
+                    new Condition("Name", Operator.Equal, "Senna")
+                    {
+                        LeftParenthesis = true, JoinUsing = JoinOperator.And
+                    },
+                    new Condition("Name", Operator.Matches, "John")
+                    {
+                        JoinUsing = JoinOperator.Or, RightParenthesis = true
+                    },
+                    new Condition("Id", Operator.Equal, 1) {JoinUsing = JoinOperator.Or},
                     new Condition("Id", Operator.NotEqual, 2)
                 },
                 OrderBy = new OrderBy
@@ -125,7 +131,7 @@ namespace QualityGate.RealTime.Tests.Queries
 
             // Then
             Assert.AreEqual(
-                "from entities where Name = 'Senna' and search(Name, '*John*') or Id = 1 or Id <> 2 order by Name, Id desc select Name, Id",
+                "from entities where (Name = 'Senna' and regex(Name, '^.*John.*$')) or Id = 1 or Id <> 2 order by Name, Id desc select Name, Id",
                 queryString);
         }
 

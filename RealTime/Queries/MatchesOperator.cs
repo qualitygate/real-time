@@ -34,7 +34,7 @@ namespace QualityGate.RealTime.Queries
             if (actual is not string actualValue || string.IsNullOrEmpty(actualValue))
                 throw new ArgumentException("Must be non-empty string", nameof(actual));
 
-            string regex = "^" + actualValue.Replace("*", ".*") + "$";
+            string regex = BuildRegexFor(actualValue);
 
             return Regex.IsMatch(expectedValue, regex);
         }
@@ -45,9 +45,20 @@ namespace QualityGate.RealTime.Queries
         /// <param name="leftOperand">Field to apply the match to.</param>
         /// <param name="rightOperand">Pattern to apply in the match statement.</param>
         /// <returns>
-        ///     A statement in the form (given leftOperand be "field1" and right operand: '*a'):
-        ///     <code>"search(field1, '*a')"</code>
+        ///     A statement in the form (given leftOperand be "field1" and right operand: 'term'):
+        ///     <code>"regex(field1, '^.*term.*$')"</code>
         /// </returns>
-        public override string ToRql(string leftOperand, string rightOperand) => $"search({leftOperand}, {rightOperand})";
+        public override string ToRql(string leftOperand, string rightOperand)
+        {
+            rightOperand = BuildRegexFor(Regex.IsMatch(rightOperand, "^\'.*\'$") ? rightOperand[1..^1] : rightOperand);
+            
+            return $"regex({leftOperand}, '{rightOperand}')";
+        }
+
+        private static string BuildRegexFor(string actualValue)
+        {
+            var escapedRegex = Regex.Escape(actualValue).Replace(@"\ ", " ");
+            return $"^.*{escapedRegex}.*$";
+        }
     }
 }

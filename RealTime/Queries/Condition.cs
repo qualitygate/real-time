@@ -107,7 +107,10 @@ namespace QualityGate.RealTime.Queries
                 null => "null",
                 _ => $"{Value}"
             };
-            builder.Append(Operator.ToRql(Field, value));
+            var leftParenthesis = LeftParenthesis ?? false ? "(" : string.Empty;
+            var rightParenthesis = RightParenthesis ?? false ? ")" : string.Empty;
+            var statement = $"{leftParenthesis}{Operator.ToRql(Field, value)}{rightParenthesis}";
+            builder.Append(statement);
 
             if (JoinUsing is not null) builder.Append($" {JoinUsing.Operator}");
 
