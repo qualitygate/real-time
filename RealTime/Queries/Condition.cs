@@ -95,7 +95,7 @@ namespace QualityGate.RealTime.Queries
                 null => "null",
                 _ => $"{Value}"
             };
-            builder.Append($"{Field} {Operator.Symbol} {value}");
+            builder.Append(Operator.ToRql(Field, value));
 
             if (JoinUsing is not null) builder.Append($" {JoinUsing.Operator}");
 

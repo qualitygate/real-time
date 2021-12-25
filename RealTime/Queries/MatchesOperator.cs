@@ -38,5 +38,16 @@ namespace QualityGate.RealTime.Queries
 
             return Regex.IsMatch(expectedValue, regex);
         }
+
+        /// <summary>
+        ///     Gets the RQL statement of this operator.
+        /// </summary>
+        /// <param name="leftOperand">Field to apply the match to.</param>
+        /// <param name="rightOperand">Pattern to apply in the match statement.</param>
+        /// <returns>
+        ///     A statement in the form (given leftOperand be "field1" and right operand: '*a'):
+        ///     <code>"search(field1, '*a')"</code>
+        /// </returns>
+        public override string ToRql(string leftOperand, string rightOperand) => $"search({leftOperand}, {rightOperand})";
     }
 }

@@ -70,6 +70,16 @@ namespace QualityGate.RealTime.Tests.Queries
             AssertMatches("John Peters", "*Pet", false);
         }
 
+        [TestMethod]
+        public void ToRql_ReturnsCorrectMatchesStatement()
+        {
+            // When
+            var statement = _subject.ToRql("Name", "'*Peter*'");
+
+            // Then
+            Assert.AreEqual("search(Name, '*Peter*')", statement);
+        }
+
         // Given a value and it's expected pattern to match
         private void AssertMatches(string value, string pattern, bool assertMatch = true)
         {

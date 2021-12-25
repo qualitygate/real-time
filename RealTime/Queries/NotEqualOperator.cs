@@ -24,5 +24,16 @@ namespace QualityGate.RealTime.Queries
             return (expected is null && actual is not null) ||
                    expected is not null && expected.ToString()?.Equals(actual?.ToString()) == false;
         }
+
+        /// <summary>
+        ///     Gets the RQL statement of this operator.
+        /// </summary>
+        /// <param name="leftOperand">Left operand.</param>
+        /// <param name="rightOperand">Right operand.</param>
+        /// <returns>
+        ///     A statement in the form (given leftOperand be "field1" and right operand: 2):
+        ///     <code>"field1 &lt;&gt; 2"</code>
+        /// </returns>
+        public override string ToRql(string leftOperand, string rightOperand) => $"{leftOperand} <> {rightOperand}";
     }
 }

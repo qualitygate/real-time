@@ -47,5 +47,16 @@ namespace QualityGate.RealTime.Queries
         /// <param name="actual">Second operand to participate in the operator.</param>
         /// <returns>True if both operands satisfy this operator; false otherwise.</returns>
         public abstract bool Evaluate(object? expected, object? actual);
+
+        /// <summary>
+        ///     When overridden in a derived class it returns the RQL expression this operator translates to given its
+        ///     operands.
+        /// </summary>
+        /// <param name="leftOperand">Left operand of the current operator.</param>
+        /// <param name="rightOperand">Right operand of the current operator.</param>
+        /// <returns>
+        ///     The specific RQL statement to be determined by the class deriving this one.
+        /// </returns>
+        public abstract string ToRql(string leftOperand, string rightOperand);
     }
 }

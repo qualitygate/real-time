@@ -71,5 +71,15 @@ namespace QualityGate.RealTime.Tests.Queries
             // Then
             Assert.IsTrue(result);
         }
+
+        [TestMethod]
+        public void ToRql_ReturnsCorrectEqualStatement()
+        {
+            // When
+            var statement = _subject.ToRql("Name", "'Peter'");
+
+            // Then
+            Assert.AreEqual("Name <> 'Peter'", statement);
+        }
     }
 }
