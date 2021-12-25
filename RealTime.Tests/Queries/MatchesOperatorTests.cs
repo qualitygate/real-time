@@ -37,19 +37,19 @@ namespace QualityGate.RealTime.Tests.Queries
         [TestMethod]
         public void Evaluate_ExpectedValueMatchesActual_ReturnsTrue_Sample1()
         {
-            AssertMatches("John Peters", "ers");
+            AssertMatches("John Peters", "ers$");
         }
 
         [TestMethod]
         public void Evaluate_ExpectedValueMatchesActual_ReturnsTrue_Sample2()
         {
-            AssertMatches("John Peters", "John");
+            AssertMatches("John Peters", "John.*");
         }
 
         [TestMethod]
         public void Evaluate_ExpectedValueMatchesActual_ReturnsTrue_Sample3()
         {
-            AssertMatches("John Peters", "Peters");
+            AssertMatches("John Peters", "^J.*Peters$");
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace QualityGate.RealTime.Tests.Queries
         [TestMethod]
         public void Evaluate_ExpectedValueDoesNotMatchesActual_ReturnsFalse_Sample2()
         {
-            AssertMatches("John Peters", ".Pet", false);
+            AssertMatches("John Peters", "\\.Pet", false);
         }
 
         [TestMethod]

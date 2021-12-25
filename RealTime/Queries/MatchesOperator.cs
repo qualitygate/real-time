@@ -34,9 +34,7 @@ namespace QualityGate.RealTime.Queries
             if (actual is not string actualValue || string.IsNullOrEmpty(actualValue))
                 throw new ArgumentException("Must be non-empty string", nameof(actual));
 
-            string regex = BuildRegexFor(actualValue);
-
-            return Regex.IsMatch(expectedValue, regex);
+            return Regex.IsMatch(expectedValue, actualValue);
         }
 
         /// <summary>
@@ -50,14 +48,9 @@ namespace QualityGate.RealTime.Queries
         /// </returns>
         public override string ToRql(string leftOperand, string rightOperand)
         {
-            rightOperand = BuildRegexFor(Regex.IsMatch(rightOperand, "^\'.*\'$") ? rightOperand[1..^1] : rightOperand);
+            rightOperand = Regex.IsMatch(rightOperand, "^\'.*\'$") ? rightOperand[1..^1] : rightOperand;
             
             return $"regex({leftOperand}, '{rightOperand}')";
-        }
-
-        private static string BuildRegexFor(string actualValue)
-        {
-            return Regex.Escape(actualValue).Replace(@"\ ", " ");
         }
     }
 }
