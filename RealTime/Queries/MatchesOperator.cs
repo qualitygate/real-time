@@ -1,4 +1,5 @@
 using System;
+using System.Text.RegularExpressions;
 
 namespace QualityGate.RealTime.Queries
 {
@@ -13,19 +14,29 @@ namespace QualityGate.RealTime.Queries
         /// </summary>
         public override string Symbol => "matches";
 
-        
+
         /// <summary>
-        ///     Compares by value the given two objects.
+        ///     Determines given string matches a certain pattern.
         /// </summary>
-        /// <param name="expected">Object to compare the second <paramref name="actual"/> value with.</param>
-        /// <param name="actual">Object to check its equality to <see cref="expected"/> one.</param>
+        /// <param name="expected">String object to check whether it matches a pattern.</param>
+        /// <param name="actual">String representing the pattern to check <see cref="expected"/> matches.</param>
+        /// <exception cref="ArgumentException"><paramref name="expected"/> or <paramref name="actual"/> are not strings.</exception>
         /// <returns>
-        ///     True if both objects are null, or (represented as string) they are not null and equal; false in
-        ///     any other case.
+        ///     True if <paramref name="expected"/> matches the pattern defined on <paramref name="actual"/> argument.
         /// </returns>
         public override bool Evaluate(object? expected, object? actual)
         {
-            throw new NotImplementedException();
+            if (expected == null) throw new ArgumentNullException(nameof(expected));
+            if (actual == null) throw new ArgumentNullException(nameof(actual));
+
+            if (expected is not string expectedValue || string.IsNullOrEmpty(expectedValue))
+                throw new ArgumentException("Must be non-empty string", nameof(expected));
+            if (actual is not string actualValue || string.IsNullOrEmpty(actualValue))
+                throw new ArgumentException("Must be non-empty string", nameof(actual));
+
+            string regex = "^" + actualValue.Replace("*", ".*") + "$";
+
+            return Regex.IsMatch(expectedValue, regex);
         }
     }
 }

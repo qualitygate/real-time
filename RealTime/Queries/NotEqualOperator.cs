@@ -11,7 +11,7 @@ namespace QualityGate.RealTime.Queries
         public override string Symbol => "<>";
 
         /// <summary>
-        ///     Compares by value the given two objects.
+        ///     Compares by value the given two objects and checks their inequality.
         /// </summary>
         /// <param name="expected">Object to compare the second <paramref name="actual"/> value with.</param>
         /// <param name="actual">Object to check its equality to <see cref="expected"/> one.</param>
