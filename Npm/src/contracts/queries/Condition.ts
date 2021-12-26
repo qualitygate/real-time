@@ -1,8 +1,4 @@
-import {Operator} from './Operator'
-
-export const And = 'and'
-export const Or = 'or'
-export type ConditionJoinOperator = typeof And | typeof Or
+import {RelationalOperator, LogicalOperator} from './Operator'
 
 /**
  * Defines a where condition in a query.
@@ -16,7 +12,7 @@ export interface Condition {
 	/**
 	 * An operator to join the current condition with the next one.
 	 */
-	joinUsing?: ConditionJoinOperator
+	joinUsing?: LogicalOperator
 
 	/**
 	 * Determines whether to add or not a parenthesis to left part of this condition.
@@ -26,7 +22,7 @@ export interface Condition {
 	/**
 	 * Operator expressing what kind of comparison will be done between the field value and this Where value field.
 	 */
-	operator: Operator
+	operator: RelationalOperator
 
 	/**
 	 * Determines whether to add or not a parenthesis to right part of this condition.
