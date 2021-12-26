@@ -1,5 +1,10 @@
 # CHANGELOG.md
 
+## 1.1.3
+### Added
+- Added condition expressions precedence by using parenthesis.
+- Added field match condition (using regex).
+
 ## 1.1.2
 ### Added
 - Add to query conditions the possibility to include: `<>` and `or` operators.

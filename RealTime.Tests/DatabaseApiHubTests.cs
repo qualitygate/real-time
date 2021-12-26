@@ -53,11 +53,11 @@ namespace QualityGate.RealTime.Tests
                          q.Table == TableName &&
                          q.Fields!.Length == 2 &&
                          q.Conditions![0].Field == "Name" &&
-                         q.Conditions[0].Operator.Sign == OperatorBase.Equal.Sign &&
+                         q.Conditions[0].Operator.Symbol == Operator.Equal.Symbol &&
                          q.Conditions[0].Value as string == "John" &&
                          q.Conditions[0].JoinUsing == JoinOperator.And &&
                          q.Conditions[1].Field == "Age" &&
-                         q.Conditions[1].Operator.Sign == OperatorBase.Equal.Sign &&
+                         q.Conditions[1].Operator.Symbol == Operator.Equal.Symbol &&
                          (int)q.Conditions[1].Value! == 30 &&
                          q.Conditions[1].JoinUsing == null));
 
@@ -69,11 +69,11 @@ namespace QualityGate.RealTime.Tests
                          q.Table == TableName &&
                          q.Fields!.Length == 2 &&
                          q.Conditions![0].Field == "Name" &&
-                         q.Conditions[0].Operator.Sign == OperatorBase.Equal.Sign &&
+                         q.Conditions[0].Operator.Symbol == Operator.Equal.Symbol &&
                          q.Conditions[0].Value as string == "John" &&
                          q.Conditions[0].JoinUsing == JoinOperator.And &&
                          q.Conditions[1].Field == "Age" &&
-                         q.Conditions[1].Operator.Sign == OperatorBase.Equal.Sign &&
+                         q.Conditions[1].Operator.Symbol == Operator.Equal.Symbol &&
                          (int)q.Conditions[1].Value! == 30 &&
                          q.Conditions[1].JoinUsing == null));
         }
@@ -96,11 +96,11 @@ namespace QualityGate.RealTime.Tests
                          q.Table == TableName &&
                          q.Fields!.Length == 2 &&
                          q.Conditions![0].Field == "Name" &&
-                         q.Conditions[0].Operator.Sign == OperatorBase.Equal.Sign &&
+                         q.Conditions[0].Operator.Symbol == Operator.Equal.Symbol &&
                          q.Conditions[0].Value as string == "John" &&
                          q.Conditions[0].JoinUsing == JoinOperator.And &&
                          q.Conditions[1].Field == "Age" &&
-                         q.Conditions[1].Operator.Sign == OperatorBase.Equal.Sign &&
+                         q.Conditions[1].Operator.Symbol == Operator.Equal.Symbol &&
                          (int)q.Conditions[1].Value! == 30 &&
                          q.Conditions[1].JoinUsing == null));
 
@@ -112,11 +112,11 @@ namespace QualityGate.RealTime.Tests
                          q.Table == TableName &&
                          q.Fields!.Length == 2 &&
                          q.Conditions![0].Field == "Name" &&
-                         q.Conditions[0].Operator.Sign == OperatorBase.Equal.Sign &&
+                         q.Conditions[0].Operator.Symbol == Operator.Equal.Symbol &&
                          q.Conditions[0].Value as string == "John" &&
                          q.Conditions[0].JoinUsing == JoinOperator.And &&
                          q.Conditions[1].Field == "Age" &&
-                         q.Conditions[1].Operator.Sign == OperatorBase.Equal.Sign &&
+                         q.Conditions[1].Operator.Symbol == Operator.Equal.Symbol &&
                          (int)q.Conditions[1].Value! == 30 &&
                          q.Conditions[1].JoinUsing == null));
         }
@@ -152,11 +152,11 @@ namespace QualityGate.RealTime.Tests
                          q.Table == TableName &&
                          q.Fields!.Length == 2 &&
                          q.Conditions![0].Field == "Name" &&
-                         q.Conditions[0].Operator.Sign == OperatorBase.Equal.Sign &&
+                         q.Conditions[0].Operator.Symbol == Operator.Equal.Symbol &&
                          q.Conditions[0].Value as string == "John" &&
                          q.Conditions[0].JoinUsing == JoinOperator.And &&
                          q.Conditions[1].Field == "Age" &&
-                         q.Conditions[1].Operator.Sign == OperatorBase.Equal.Sign &&
+                         q.Conditions[1].Operator.Symbol == Operator.Equal.Symbol &&
                          (int)q.Conditions[1].Value! == 30 &&
                          q.Conditions[1].JoinUsing == null));
         }
@@ -167,8 +167,8 @@ namespace QualityGate.RealTime.Tests
             Table = TableName,
             Conditions = new ConditionDto[]
             {
-                new("Name", OperatorBase.Equal.Sign, "John", JoinOperator.And.Operator),
-                new("Age", OperatorBase.Equal.Sign, 30)
+                new("Name", Operator.Equal.Symbol, JoinOperator.And.Operator, Value: "John"),
+                new("Age", Operator.Equal.Symbol, Value: 30)
             },
             Fields = new[] { "Name", "Age" },
             OrderBy = new OrderBy { Fields = new[] { "Name", "Age" }, Ascending = true }

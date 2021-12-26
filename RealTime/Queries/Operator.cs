@@ -5,35 +5,39 @@ namespace QualityGate.RealTime.Queries
     /// <summary>
     ///     Base class of all the logical operators to use in the queries.
     /// </summary>
-    public abstract class OperatorBase
+    public abstract class Operator
     {
         /// <summary>
         ///     Equality logical operator.
         /// </summary>
-        public static readonly OperatorBase Equal = new EqualOperator();
-        public static readonly OperatorBase NotEqual = new NotEqualOperator();
+        public static readonly Operator Equal = new EqualOperator();
+        public static readonly Operator NotEqual = new NotEqualOperator();
+        public static readonly Operator Matches = new MatchesOperator();
 
 
         /// <summary>
-        ///     Implicitly converts a logical operator in string representation into its <see cref="OperatorBase"/>
+        ///     Implicitly converts a logical operator in string representation into its <see cref="Operator"/>
         ///     corresponding instance.
         /// </summary>
         /// <param name="operator">String representation of the operator to convert.</param>
         /// <returns>
-        ///     The <see cref="OperatorBase"/> corresponding instance to the given <paramref name="operator"/>.
+        ///     The <see cref="Operator"/> corresponding instance to the given <paramref name="operator"/>.
         /// </returns>
-        public static implicit operator OperatorBase(string @operator) => @operator switch
+        public static implicit operator Operator(string @operator) => @operator switch
         {
             "=" => new EqualOperator(),
             "<>" => new NotEqualOperator(),
+            "matches" => new MatchesOperator(),
             _ => throw new NotImplementedException()
         };
+
+        public static implicit operator string(Operator @operator) => @operator.Symbol;
 
 
         /// <summary>
         ///     When overridden in a derived class the actual sign of this operator.
         /// </summary>
-        public abstract string Sign { get; }
+        public abstract string Symbol { get; }
 
 
         /// <summary>
@@ -43,5 +47,16 @@ namespace QualityGate.RealTime.Queries
         /// <param name="actual">Second operand to participate in the operator.</param>
         /// <returns>True if both operands satisfy this operator; false otherwise.</returns>
         public abstract bool Evaluate(object? expected, object? actual);
+
+        /// <summary>
+        ///     When overridden in a derived class it returns the RQL expression this operator translates to given its
+        ///     operands.
+        /// </summary>
+        /// <param name="leftOperand">Left operand of the current operator.</param>
+        /// <param name="rightOperand">Right operand of the current operator.</param>
+        /// <returns>
+        ///     The specific RQL statement to be determined by the class deriving this one.
+        /// </returns>
+        public abstract string ToRql(string leftOperand, string rightOperand);
     }
 }

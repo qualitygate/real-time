@@ -1,7 +1,6 @@
 import {Database, DatabaseImpl} from './Database'
 import {DatabaseListeners} from './DatabaseListeners'
 import {ConnectionProvider} from '../connection/ConnectionProvider'
-import {HubConnectionBuilder} from '@microsoft/signalr'
 import {LoggerImpl} from '../utils/Logger'
 
 export * from './Database'
@@ -17,7 +16,7 @@ export * from './DatabaseStatusListener'
  */
 export function createDatabase(name: string): Database {
 	const listeners = new DatabaseListeners()
-	const connectionProvider = new ConnectionProvider(new HubConnectionBuilder())
+	const connectionProvider = new ConnectionProvider()
 
 	return new DatabaseImpl(name, listeners, connectionProvider, new LoggerImpl(name))
 }

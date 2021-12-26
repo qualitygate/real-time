@@ -13,16 +13,21 @@
         <RepositoryUrl>https://github.com/qualitygate/real-time</RepositoryUrl>
         <Company>QualityGate</Company>
         <Product>QualityGate.RealTime</Product>
-        <AssemblyVersion>1.1.2</AssemblyVersion>
-        <PackageTags>signalr database websocket sync</PackageTags>
-        <PackageReleaseNotes>- Adds a Hub to connect to from web components.
-- Register queries from the web components through the Hub.
-- Registered queries get notified on real-time of changes to domain entities matching their criteria.
-- Add conditions to the queries (where clause).
-- Add ordering for the queries (order by).
-- Add slicing to the queries (offset, limit).</PackageReleaseNotes>
-        <PackageVersion>1.1.1</PackageVersion>
+        <AssemblyVersion>1.2.0</AssemblyVersion>
+        <PackageTags>signalr database websocket sync query real-time</PackageTags>
+        <PackageReleaseNotes></PackageReleaseNotes>
+        <PackageVersion>1.2.0</PackageVersion>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
     </PropertyGroup>
+
+    <ItemGroup>
+      <None Remove="C:\Users\ariel\.nuget\packages\ravendb.client\5.3.0\contentFiles\any\any\libzstd.arm.32.so" />
+      <None Remove="C:\Users\ariel\.nuget\packages\ravendb.client\5.3.0\contentFiles\any\any\libzstd.arm.64.so" />
+      <None Remove="C:\Users\ariel\.nuget\packages\ravendb.client\5.3.0\contentFiles\any\any\libzstd.linux.x64.so" />
+      <None Remove="C:\Users\ariel\.nuget\packages\ravendb.client\5.3.0\contentFiles\any\any\libzstd.mac.x64.dylib" />
+      <None Remove="C:\Users\ariel\.nuget\packages\ravendb.client\5.3.0\contentFiles\any\any\libzstd.win.x64.dll" />
+      <None Remove="C:\Users\ariel\.nuget\packages\ravendb.client\5.3.0\contentFiles\any\any\libzstd.win.x86.dll" />
+    </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.1.0" />

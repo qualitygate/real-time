@@ -285,11 +285,204 @@ export function RootComponent() {
 }
 ```
 
+## Supported queries
+
+Find below the list of different queries that are supported along with some samples.
+
+### Selecting Entity set (Table) to take 
+
+```typescript
+import {Query} from './Query'
+
+const allPersons: Query = {
+  table: 'Persons',
+  // remember that names syntax/composition are not important as long as they are unique across queries
+  name: 'all.persons'
+}
+```
+
+SQL equivalent:
+```sql
+select * from Persons
+```
+
+### Field projection
+
+From persons get their names and ages only. `fields` definition is optional string array, each element is expected to
+match the name of an entity field. If not provided, by default all fields will be retrieved for each entity.
+
+```typescript
+const specificFieldsPersons: Query = {
+  table: 'Persons',
+  name: 'specific.fields.persons',
+  fields: ['name', 'age']
+}
+```
+
+SQL equivalent:
+```sql
+select name, age from Persons
+```
+
+### Conditions
+
+Conditions imitate the standard expressions of: `field` `operator` `value`, e.g: `name = 'John'`. Follows the list of
+supported operators.
+
+```typescript
+import {Equal} from './Operator'
+import {Query} from './Query'
+
+const personsWith30Years: Query = {
+	table: 'Persons',
+	name: 'persons.with.30',
+	conditions: [
+		{field: 'age', operator: Equal, value: 30}
+	]
+}
+```
+
+SQL equivalent:
+```sql
+select * from Persons where age = 30
+```
+
+#### Logical operators
+
+- `and`: *and* operator that evaluates to `true` if both operands evaluate to `true`. Example:
+`name = 'John' and age = 30` for the entity: `{"name": 'John', "age": 30}`.
+- `or`: *or* operator which evaluates to `true` if any of its operands evaluate to `true`. Example:
+`name = 'John' or age = 31` for the same entity in the example above.
+
+```typescript
+import {Equal, Or} from './Operator'
+import {Query} from './Query'
+
+const personsWith30Years: Query = {
+	table: 'Persons',
+	name: 'sample.persons',
+	conditions: [
+		{field: 'name', operator: Equal, value: 'John', joinUsing: Or},
+		{field: 'name', operator: Equal, value: 'James'}
+	]
+}
+```
+
+SQL equivalent:
+```sql
+select * from Persons where name = 'John' or name = 'James'
+```
+
+#### Relational operators
+
+- `=`: Checks whether an entity field is equal to a certain value.
+- `<>`: The opposite of the `=` operator.
+- `matches`: Checks whether a certain field matches a certain regular expression.
+
+```typescript
+import {And, Equal, Matches, Or} from './Operator'
+import {Query} from './Query'
+
+const persons: Query = {
+	table: 'Persons',
+	name: 'sample.persons',
+	conditions: [
+		{field: 'name', operator: Equal, value: 'John', joinUsing: Or},
+		{field: 'name', operator: Equal, value: 'James', joinUsing: And},
+		{field: 'lastName', operator: Matches, value: '^.*lon$'} // Finds the persons which lastname end in 'lon'
+	]
+}
+```
+
+SQL equivalent:
+```sql
+from Persons where name = 'John' or name = 'James' and lastName ~ '^.*lon$'
+```
+
+#### Parenthesis definition
+
+Conditions can also set whether the start and/or end with a parenthesis, allowing to add precedence.
+
+```typescript
+import {And, Equal, Matches, Or} from './Operator'
+import {Query} from './Query'
+
+const persons: Query = {
+	table: 'Persons',
+	name: 'sample.persons',
+	conditions: [
+		{field: 'name', operator: Equal, value: 'John', joinUsing: Or, leftParenthesis: true},
+		{field: 'name', operator: Equal, value: 'James', joinUsing: And, rightParenthesis: true},
+		{field: 'lastName', operator: Matches, value: '^.*lon$'}
+	]
+}
+```
+
+SQL equivalent:
+```sql
+from Persons where (name = 'John' or name = 'James') and lastName ~ '^.*lon$'
+```
+
+#### Ordering
+
+To order results by a certain fields, just specify those and set whether the ordering should be ascending or descending.
+Example:
+
+```typescript
+import {Equal} from './Operator'
+import {Query} from './Query'
+
+const persons: Query = {
+	table: 'Persons',
+	name: 'sample.persons',
+	conditions: [
+		{field: 'name', operator: Equal, value: 'John'}
+	],
+  orderBy: {fields: ['name', 'age'], ascending: false}
+}
+```
+
+SQL equivalent:
+```sql
+select * from Persons where name = 'John' order by 'name' desc, 'age' desc
+```
+
+#### Pagination
+
+It's also possible to slice query results. If you set the `page` and `size` fields of the query you will get from the
+original query results the: `page * size`th element to the `page * size + size`th one. If your query returns
+30 elements, setting the page: **2** and size: **5**, you will get from the **10**th element to the **15**th one. See
+the example below:
+
+```typescript
+import {And, Equal, Matches, Or} from './Operator'
+import {Query} from './Query'
+
+const persons: Query = {
+	table: 'Persons',
+	name: 'sample.persons',
+	conditions: [
+		{field: 'name', operator: Equal, value: 'John'}
+	],
+  orderBy: {fields: ['name'], ascending: true},
+  page: 2,
+  size: 5
+}
+```
+
+SQL equivalent:
+```sql
+select * from Persons where 'name' = 'John' order by 'name' limit 5 offset 10
+```
+
+**NOTE:** More operators will come in the future. The current scope is not aiming to support all the operators in the SQL
+language.
+
 ## License
 
-MIT License. Anyone can fork, use or contribute to this project at will. All the contributions are pretty much
-appreciated.
+MIT License. Anyone can fork, use or contribute to this project at will. All contributions are very much appreciated 
+and welcome.
 
 ## Changelog
 
-Latest changes are tracked at the [CHANGELOG.md](./CHANGELOG.md)
+Latest changes are tracked at the [CHANGELOG.md](https://github.com/qualitygate/real-time/blob/main/Npm/CHANGELOG.md)

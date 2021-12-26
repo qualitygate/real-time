@@ -1,6 +1,6 @@
 import {each, has, valuesIn} from 'lodash'
 
-import {DatabaseStatus, DISCONNECTED} from '../database'
+import {DatabaseStatus, DISCONNECTED} from './index'
 import {DatabaseStatusListener} from './DatabaseStatusListener'
 
 /**

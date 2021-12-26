@@ -31,9 +31,9 @@ namespace QualityGate.RealTime.Tests.Queries
             {
                 Conditions = new[]
                 {
-                    new Condition(nameof(TestEntity.Id), OperatorBase.Equal, entity.Id)
+                    new Condition(nameof(TestEntity.Id), Operator.Equal, entity.Id)
                         { JoinUsing = JoinOperator.And },
-                    new Condition(nameof(TestEntity.Name), OperatorBase.Equal, entity.Name)
+                    new Condition(nameof(TestEntity.Name), Operator.Equal, entity.Name)
                 }
             };
 
@@ -54,9 +54,9 @@ namespace QualityGate.RealTime.Tests.Queries
             {
                 Conditions = new[]
                 {
-                    new Condition(nameof(TestEntity.Id), OperatorBase.Equal, -1)
+                    new Condition(nameof(TestEntity.Id), Operator.Equal, -1)
                         { JoinUsing = JoinOperator.And },
-                    new Condition(nameof(TestEntity.Name), OperatorBase.Equal, entity.Name)
+                    new Condition(nameof(TestEntity.Name), Operator.Equal, entity.Name)
                 }
             };
 
@@ -106,10 +106,16 @@ namespace QualityGate.RealTime.Tests.Queries
                 Fields = new[] { "Name", "Id" },
                 Conditions = new[]
                 {
-                    new Condition("Name", OperatorBase.Equal, "John") { JoinUsing = JoinOperator.And },
-                    new Condition("Name", OperatorBase.NotEqual, "Senna") { JoinUsing = JoinOperator.And },
-                    new Condition("Id", OperatorBase.Equal, 1) { JoinUsing = JoinOperator.Or },
-                    new Condition("Id", OperatorBase.Equal, 2)
+                    new Condition("Name", Operator.Equal, "Senna")
+                    {
+                        LeftParenthesis = true, JoinUsing = JoinOperator.And
+                    },
+                    new Condition("Name", Operator.Matches, "John")
+                    {
+                        JoinUsing = JoinOperator.Or, RightParenthesis = true
+                    },
+                    new Condition("Id", Operator.Equal, 1) {JoinUsing = JoinOperator.Or},
+                    new Condition("Id", Operator.NotEqual, 2)
                 },
                 OrderBy = new OrderBy
                 {
@@ -125,7 +131,7 @@ namespace QualityGate.RealTime.Tests.Queries
 
             // Then
             Assert.AreEqual(
-                "from entities where Name = 'John' and Name <> 'Senna' and Id = 1 or Id = 2 order by Name, Id desc select Name, Id",
+                "from entities where (Name = 'Senna' and regex(Name, 'John')) or Id = 1 or Id <> 2 order by Name, Id desc select Name, Id",
                 queryString);
         }
 
