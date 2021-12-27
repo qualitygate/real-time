@@ -1,4 +1,4 @@
-import React, {useContext} from 'react'
+import * as React from 'react'
 import {isNil} from 'lodash'
 import {createDatabase, Database} from '../database'
 
@@ -20,7 +20,7 @@ export interface DatabaseProviderProps {
  * @return {Database} instance provided by the nearest <DatabaseProvider/> up in the tree of the caller component.
  */
 export function useDatabase(databaseName: string): Database {
-	const databases = useContext<Databases>(databasesContext)
+	const databases = React.useContext<Databases>(databasesContext)
 	let database = databases[databaseName]
 
 	if (isNil(database)) {

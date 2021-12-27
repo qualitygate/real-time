@@ -396,7 +396,7 @@ const persons: Query = {
 
 SQL equivalent:
 ```sql
-from Persons where name = 'John' or name = 'James' and lastName ~ '^.*lon$'
+select * from Persons where name = 'John' or name = 'James' and lastName ~ '^.*lon$'
 ```
 
 #### Parenthesis definition
